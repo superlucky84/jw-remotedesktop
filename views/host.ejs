@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+
+		<progress id="sendProgress" max="0" value="0"></progress>
+    <video src="" style="width: 90%" autoplay></video>
+
+    <script src="javascripts/socket.io.js"></script>
+    <script src="javascripts/jrtc.bundle.js"></script>
+    <script src="javascripts/viewer.bundle.js"></script>
+
+    <script>
+
+    const  {desktopCapturer, screen} =  require('electron');
+
+    //console.log("WEBRTC",RTCPeerConnection,webrtc);
+    //robot.moveMouse(30, 30);
+
+    let screenSize = screen.getPrimaryDisplay().workAreaSize;
+
+    //let socket = io.connect('http://localhost:12345');
+
+    let receiver = {};
+    let sender = new Jrtc(
+        'sender',
+        'all',
+        io.connect('http://localhost:12345'),
+        document.querySelector('video')
+    );
+
+
+    desktopCapturer.getSources({types: ['window', 'screen']}, (error, sources) => {
+      if (error) throw error
+      for (let i = 0; i < sources.length; ++i) {
+        console.log('NAME---',sources[i]);
+
+        if (sources[i].id.match(/^screen:/)) {
+
+          console.log('NAME---',sources[i].thumbnail.getSize());
+
+          navigator.webkitGetUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: 'desktop',
+                chromeMediaSourceId: sources[i].id,
+                minWidth: screenSize.width,
+                maxWidth: screenSize.width,
+                minHeight: screenSize.height,
+                maxHeight: screenSize.height
+              }
+            }
+            }, function(stream) {
+              sender.setEvent(stream);
+
+              sender.receiveCreateRtc = function(id, roomname) {
+
+                receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12345'));
+
+
+                // join 을 하면 센더에서 크레이트 피어를 합니다.
+                receiver[id].join(roomname);
+
+                receiver[id].onReceiveMessageCallback = function(event) {
+                  console.log("va-",new Uint8Array(event.data));
+                }
+              }
+
+              sender.join('mainroom', function(receveirIds) {
+                receveirIds.forEach(function(id) {
+                  sender.createPeer(id);
+                  sender.createOffer(id);
+                });
+              });
+
+            }, handleError)
+          return
+        }
+      }
+    })
+
+
+
+
+    function handleError (e) {
+      console.log(e)
+    }
+
+
+
+    </script>
+  </body>
+</html>

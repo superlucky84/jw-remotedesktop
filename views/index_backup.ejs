@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+
+
+		<progress id="receiveProgress" max="0" value="0"></progress>
+    <video src="" style="width: 90%" autoplay></video>
+
+
+    <script src="javascripts/socket.io.js"></script>
+    <!--script src="javascripts/adapter.js"></script-->
+    <script>
+
+
+
+    this.pc1_id = null;
+
+    var that = this;
+
+    var ws = io.connect('http://localhost:12345');
+
+    var iceConfig = {
+      iceServers: [
+        {
+          url: 'stun:104.236.113.81:3478'
+        },
+        {
+          url: 'turn:104.236.113.81:3478?transport=udp',
+          credential: 'fd8f745ea7a07828e6690fa0d080e522',
+          username: 'jj'
+        },
+        {
+          url: 'turn:104.236.113.81:3478?transport=tcp',
+          credential: 'fd8f745ea7a07828e6690fa0d080e522',
+          username: 'jj'
+        }
+      ]
+    }
+
+
+     let pc2 = new RTCPeerConnection(iceConfig);
+
+		 pc2.ondatachannel = receiveChannelCallback;
+
+
+     pc2.onicecandidate = function(e) {
+       onIceCandidate(e);
+     };
+
+
+     pc2.oniceconnectionstatechange = function(e) {
+       onIceStateChange(e);
+     };
+
+     pc2.onaddstream = gotRemoteStream.bind(that);
+
+
+    // 호스트에 연결요청을 함(방에 들어감)
+    ws.emit('join', 'client', 'vroom1');
+
+
+
+    ws.on('receiveOffer', function(desc, offer_id) {
+
+      if(that.pc1_id != null) {
+        console.log('이미 연결중임');
+        return false;
+      }
+
+      that.pc1_id = offer_id;
+      pc2.setRemoteDescription(desc).then(
+        onSetRemoteSuccess,
+        onSetSessionDescriptionError
+      );
+    });
+
+    ws.on('receiveIceCandidate',function(candidate) {
+
+      pc2.addIceCandidate(
+        new RTCIceCandidate(candidate)
+      ).then(
+        onAddIceCandidateSuccess,
+        onAddIceCandidateError
+      );
+    });
+
+    function onIceCandidate(event) {
+      if (event.candidate) {
+        ws.emit('sendIceCandidate', that.pc1_id,event.candidate);
+      }
+    }
+    function onIceStateChange(event) {
+      console.log(pc2.iceConnectionState)
+    }
+
+    // addicecandidate success of fail
+    function onAddIceCandidateSuccess() {
+      console.log(' addIceCandidate success');
+    }
+
+    function onAddIceCandidateError(error) {
+      console.log(' failed to add ICE Candidate: ' + error.toString());
+    }
+
+
+    // create answer success or fail
+    function onCreateAnswerSuccess(desc) {
+      pc2.setLocalDescription(desc).then(
+        function(){
+          onSetLocalSuccess(desc);
+        },
+        onSetSessionDescriptionError
+      );
+    }
+
+    // setlocalldescription success or fail
+    function onSetLocalSuccess(desc) {
+      console.log('setLocalDescription complete');
+      // 성공 후 웹소켓으로 pc1에게 sdp 전달
+      ws.emit('sendAnswer', that.pc1_id, desc);
+    }
+
+    // setremotedescription success or fail
+    function onSetRemoteSuccess() {
+      console.log('SETREMOTEDESCRIPTION COMPLETE');
+
+      // setremotesdp 성공 후 createSdp 생성
+      pc2.createAnswer().then(
+        onCreateAnswerSuccess,
+        onCreateSessionDescriptionError
+      );
+
+    }
+
+    function onCreateSessionDescriptionError(error) {
+      console.log('Failed to create session description: ' + error.toString());
+    }
+
+    function gotRemoteStream(e) {
+      //video.srcObject = e.stream;
+      //video.src = URL.createObjectURL(e.stream);
+
+      //let $this = ReactDOM.findDOMNode(this);
+      //$video.srcObject = e.stream;
+
+      let $video = document.querySelector("video");
+
+      //$video.srcObject = e.stream;
+      $video.src = URL.createObjectURL(e.stream);
+
+    }
+
+    function onSetSessionDescriptionError(error) {
+      console.log('Failed to set session description: ' + error.toString());
+    }
+
+
+
+
+
+/* data send sample */
+
+let receiveChannel = null;
+
+let receivedSize = 0;
+let bytesToSend = Math.round(128) * 1024 * 1024;
+let receiveProgress = document.querySelector('progress#receiveProgress');
+
+function receiveChannelCallback(event) {
+  receiveChannel = event.channel;
+  receiveChannel.binaryType = 'arraybuffer';
+  receiveChannel.onmessage = onReceiveMessageCallback;
+
+  receivedSize = 0;
+}
+
+
+function onReceiveMessageCallback(event) {
+  receivedSize += event.data.length;
+console.log(receivedSize);
+  receiveProgress.value = receivedSize;
+
+}
+
+
+	
+
+
+
+
+    </script>
+    <!--div id="jwviewer"></div-->
+    <!--script src="javascripts/bundle.js"></script-->
+  </body>
+</html>

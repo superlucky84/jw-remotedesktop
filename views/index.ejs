@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+
+    <div style="height: 100px;">
+      <button type="button" id="wb-toggle">on/off</button>
+
+      <select id="wb-type">
+        <option value="0" selected>자유</option>
+        <option value="1">직선</option>
+        <option value="2">사각형</option>
+        <option value="3">원형</option>
+        <option value="4">화살표</option>
+      </select>
+
+      <select id="wb-width">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+
+      <select id="wb-color">
+        <option value="#FF0000" selected>빨간색</option>
+        <option value="#FFFF00">노란색</option>
+        <option value="#010000">검은색</option>
+        <option value="#FFFFFF">흰색</option>
+      </select>
+
+    </div>
+    
+    <div class="viewer-wrap" tabindex="0">
+      <div class="viewer" >
+        <video id="screen" src="" autoplay></video>
+      </div>
+    </div>
+
+    <script src="javascripts/socket.io.js"></script>
+    <script src="javascripts/jrtc.bundle.js"></script>
+    <script src="javascripts/viewer.bundle.js"></script>
+    <script>
+
+
+    //var socket = io.connect('http://localhost:12345');
+    var receiver = new Jrtc(
+        'receiver',
+        'all',
+        io.connect('http://localhost:12345'),
+        document.querySelector('video')
+    );
+
+    var sender = null;
+
+    receiver.onReceiveMessageCallback = function(event) {
+
+
+      if (event.data == 'REQUEST_REVERSE_DATA_CHANNAL') {
+
+        console.log("RECEIVE DATA-hahah",event.data, typeof event.data);
+
+        sender = new Jrtc( 'sender', 'data', io.connect('http://localhost:12345'));
+        sender.setEvent();
+
+        var rmid = new Date().getTime();
+
+        sender.join(rmid, function(){
+          receiver.requestCreateRtc(rmid);
+        });
+      }
+    }
+    receiver.join('mainroom');
+
+    // 뷰어 테스트
+    var viewerApp = new Viewer();
+    viewerApp.init();
+
+    viewerApp.emitter.on('dataSend', function(buffer) {
+      sender.sendChannel[Object.keys(sender.sendChannel)[0]].send(buffer);
+    });
+
+
+
+
+    </script>
+    <!--div id="jwviewer"></div-->
+    <!--script src="javascripts/bundle.js"></script-->
+  </body>
+</html>
