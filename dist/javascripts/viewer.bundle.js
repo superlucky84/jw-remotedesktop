@@ -124,6 +124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.emitter.on('keyboardUpdate', function (data) {
 
 	        data.topic = 'KeyMouseCtrl:KeyEvent';
+	        console.log(data);
 	        self.emitter.emit('dataSend', JSON.stringify(data));
 	      });
 
@@ -146,6 +147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          };
 
 	          data.topic = 'KeyMouseCtrl:MouseEvent';
+	          console.log(data);
 	          self.emitter.emit('dataSend', JSON.stringify(data));
 	        }
 	      });
@@ -157,6 +159,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        data.topic = topic;
+
+	        console.log(data);
 	        self.emitter.emit('dataSend', JSON.stringify(data));
 	      });
 

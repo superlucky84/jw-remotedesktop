@@ -8,89 +8,85 @@
 		<progress id="sendProgress" max="0" value="0"></progress>
 		<video autoplay></video>
 
-    <script src="src/socket.io.js"></script>
-    <script src="src/jrtc.bundle.js"></script>
+    <script src="dist/javascripts/socket.io.js"></script>
+    <script src="dist/javascripts/jrtc.bundle.js"></script>
     <script>
 
-//Move the mouse across the screen as a sine wave.
-//var robot = require("robotjs");
-//const {desktopCapturer, screen} = require('electron');
-//var webrtc = require('webrtc-adapter');
+    const {desktopCapturer, screen} =  require('electron');
+    const robot = require("robotjs");
 
-const  {desktopCapturer, screen} =  require('electron');
+    robot.moveMouse(30, 30);
 
-//console.log("WEBRTC",RTCPeerConnection,webrtc);
-//robot.moveMouse(30, 30);
+    let screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-let screenSize = screen.getPrimaryDisplay().workAreaSize;
+    //let socket = io.connect('http://localhost:12345');
 
-//let socket = io.connect('http://localhost:12345');
-
-let receiver = {};
-let sender = new Jrtc(
-    'sender',
-    'all',
-    io.connect('http://localhost:12345'),
-    document.querySelector('video')
-);
+    let receiver = {};
+    let sender = new Jrtc(
+        'sender',
+        'all',
+        io.connect('http://localhost:12345'),
+        document.querySelector('video')
+    );
 
 
-desktopCapturer.getSources({types: ['window', 'screen']}, (error, sources) => {
-  if (error) throw error
-  for (let i = 0; i < sources.length; ++i) {
-    console.log('NAME---',sources[i]);
+    desktopCapturer.getSources({types: ['window', 'screen']}, (error, sources) => {
+      if (error) throw error
+      for (let i = 0; i < sources.length; ++i) {
+        console.log('NAME---',sources[i]);
 
-    if (sources[i].id.match(/^screen:/)) {
+        if (sources[i].id.match(/^screen:/)) {
 
-      console.log('NAME---',sources[i].thumbnail.getSize());
+          console.log('NAME---',sources[i].thumbnail.getSize());
 
-      navigator.webkitGetUserMedia({
-        audio: false,
-        video: {
-          mandatory: {
-            chromeMediaSource: 'desktop',
-            chromeMediaSourceId: sources[i].id,
-            minWidth: screenSize.width,
-            maxWidth: screenSize.width,
-            minHeight: screenSize.height,
-            maxHeight: screenSize.height
-          }
-        }
-        }, function(stream) {
-          sender.setEvent(stream);
-
-          sender.receiveCreateRtc = function(id, roomname) {
-
-            receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12345'));
-
-
-            // join 을 하면 센더에서 크레이트 피어를 합니다.
-            receiver[id].join(roomname);
-
-            receiver[id].onReceiveMessageCallback = function(event) {
-              console.log("va-",new Uint8Array(event.data));
+          navigator.webkitGetUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: 'desktop',
+                chromeMediaSourceId: sources[i].id,
+                minWidth: screenSize.width,
+                maxWidth: screenSize.width,
+                minHeight: screenSize.height,
+                maxHeight: screenSize.height
+              }
             }
-          }
+            }, function(stream) {
+              sender.setEvent(stream);
 
-          sender.join('mainroom', function(receveirIds) {
-            receveirIds.forEach(function(id) {
-              sender.createPeer(id);
-              sender.createOffer(id);
-            });
-          });
+              sender.receiveCreateRtc = function(id, roomname) {
 
-        }, handleError)
-      return
+                receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12345'));
+
+
+                // join 을 하면 센더에서 크레이트 피어를 합니다.
+                receiver[id].join(roomname);
+
+                receiver[id].onReceiveMessageCallback = function(event) {
+                  var data = JSON.parse(event.data);
+                  console.log("va-",data);
+                }
+              }
+
+              sender.join('mainroom', function(receveirIds) {
+                receveirIds.forEach(function(id) {
+                  sender.createPeer(id);
+                  sender.createOffer(id);
+                });
+              });
+
+            }, handleError)
+          return
+        }
+      }
+    })
+
+
+
+    function handleError (e) {
+      console.log(e)
     }
-  }
-})
 
-
-
-
-function handleError (e) {
-  console.log(e)
-}
 
 
     </script>

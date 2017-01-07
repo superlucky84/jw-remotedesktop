@@ -43,6 +43,7 @@ module.exports = class Viewer {
     this.emitter.on('keyboardUpdate', function(data) {
 
         data.topic = 'KeyMouseCtrl:KeyEvent';
+        console.log(data);
         self.emitter.emit('dataSend', JSON.stringify(data));
 
     });
@@ -68,6 +69,7 @@ module.exports = class Viewer {
 
 
         data.topic = 'KeyMouseCtrl:MouseEvent';
+        console.log(data);
         self.emitter.emit('dataSend', JSON.stringify(data));
 
       }
@@ -75,12 +77,15 @@ module.exports = class Viewer {
 
     this.emitter.on('whiteboardUpdate', function(topic,data) {
 
-
       if (!data) {
         data = {};
       }
 
+
       data.topic = topic;
+
+
+      console.log(data);
       self.emitter.emit('dataSend', JSON.stringify(data));
 
     });
