@@ -7,8 +7,8 @@ import Mouse from './lib/viewer/mouse';
 import Keyboard from './lib/viewer/keyboard';
 import Scroller from './lib/viewer/scroller';
 import Whiteboard from './lib/viewer/whiteboard';
-import Protocol from './lib/rc.protocol';
-import Parser from './lib/rc.parser.client'; 
+//import Protocol from './lib/rc.protocol';
+//import Parser from './lib/rc.parser.client'; 
 
 module.exports = class Viewer {
 
@@ -42,11 +42,10 @@ module.exports = class Viewer {
 
     this.emitter.on('keyboardUpdate', function(data) {
 
-        var protocol =  Protocol['data'];
-        var schema = protocol.get('KeyMouseCtrl:KeyEvent');
-        var packet = new Parser.Encoder(schema, data||{}).pack();
-
-        self.emitter.emit('dataSend',packet.buffer);
+        //var protocol =  Protocol['data'];
+        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
+        //var packet = new Parser.Encoder(schema, data||{}).pack();
+        //self.emitter.emit('dataSend',packet.buffer);
     });
 
 
@@ -80,11 +79,10 @@ module.exports = class Viewer {
 
     this.emitter.on('whiteboardUpdate', function(topic,data) {
 
-      var protocol =  Protocol['data'];
-      var schema = protocol.get(topic);
-      var packet = new Parser.Encoder(schema, data||{}).pack();
-
-      self.emitter.emit('dataSend',packet.buffer);
+      //var protocol =  Protocol['data'];
+      //var schema = protocol.get(topic);
+      //var packet = new Parser.Encoder(schema, data||{}).pack();
+      //self.emitter.emit('dataSend',packet.buffer);
     });
 
 
