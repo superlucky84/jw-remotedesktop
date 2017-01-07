@@ -45,10 +45,18 @@ module.exports = class Jrtc {
 
     /* datachannel sample */
     this.sendChannel = {};
-		this.sendProgress = document.querySelector('progress#sendProgress');
-		this.bytesToSend = Math.round(128) * 1024 * 1024;
-    this.receiveProgress = document.querySelector('progress#receiveProgress');
-    this.receivedSize = 0;
+
+    this.ws.on('destroy', (id) => {
+      if (this.sendChannel[id]) {
+        this.sendChannel[id] = null;
+        delete this.sendChannel[id];
+      }
+      if (this.peer[id]) {
+        this.peer[id].close();
+        this.peer[id] = null;
+        delete this.peer[id];
+      }
+    });
   }
 
   join(room, callback = false) {
@@ -195,66 +203,11 @@ module.exports = class Jrtc {
 
     if (readyState === 'open') {
       console.log('SENDGENERATE-DATA');
-      //this.sendGeneratedData();
 
       this.sendChannel[id].send("REQUEST_REVERSE_DATA_CHANNAL");
     }
   }
 
-  sendGeneratedData() {
-    let that = this;
-
-    this.sendProgress.max = this.bytesToSend;
-    this.sendProgress.value = 0;
-
-    var chunkSize = 16384;
-    var stringToSendRepeatedly = randomAsciiString(chunkSize);
-    var bufferFullThreshold = 5 * chunkSize;
-    var usePolling = true;
-    if (typeof this.sendChannel[id].bufferedAmountLowThreshold === 'number') {
-      usePolling = false;
-
-      // Reduce the buffer fullness threshold, since we now have more efficient
-      // buffer management.
-      bufferFullThreshold = chunkSize / 2;
-
-      // This is "overcontrol": our high and low thresholds are the same.
-      this.sendChannel[id].bufferedAmountLowThreshold = bufferFullThreshold;
-    }
-    // Listen for one bufferedamountlow event.
-    var listener = function() {
-      that.sendChannel[id].removeEventListener('bufferedamountlow', listener);
-      sendAllData();
-    };
-    var sendAllData = function() {
-      // Try to queue up a bunch of data and back off when the channel starts to
-      // fill up. We don't setTimeout after each send since this lowers our
-      // throughput quite a bit (setTimeout(fn, 0) can take hundreds of milli-
-      // seconds to execute).
-      while (that.sendProgress.value < that.sendProgress.max) {
-        if (that.sendChannel[id].bufferedAmount > bufferFullThreshold) {
-          if (usePolling) {
-            setTimeout(sendAllData, 250);
-          } else {
-            that.sendChannel[id].addEventListener('bufferedamountlow', listener);
-          }
-          return;
-        }
-        that.sendProgress.value += chunkSize;
-        that.sendChannel[id].send(stringToSendRepeatedly);
-      }
-    };
-    setTimeout(sendAllData, 0);
-
-		function randomAsciiString(length) {
-			var result = '';
-			for (var i = 0; i < length; i++) {
-				// Visible ASCII chars are between 33 and 126.
-				result += String.fromCharCode(33 + Math.random() * 93);
-			}
-			return result;
-		}
-  }
   receiveCreateRtc(id) {
     console.log('not define');
   }
@@ -293,23 +246,15 @@ module.exports = class Jrtc {
   /* datachannel sample */
   receiveChannelCallback(id ,event) {
 
-    //this.receiveProgress.max = this.bytesToSend;
-    //this.receiveProgress.value = 0;
 
     this.receiveChannel = event.channel;
     this.receiveChannel.binaryType = 'arraybuffer';
     this.receiveChannel.onmessage = this.onReceiveMessageCallback.bind(this);
-    this.receivedSize = 0;
   }
 
   onReceiveMessageCallback(event) {
     console.log("RECEIVE DATA",event.data, typeof event.data);
 
-    /*
-    this.receivedSize += event.data.length;
-    console.log(this.receivedSize);
-    this.receiveProgress.value = this.receivedSize;
-    */
   }
 
   requestConnect() {

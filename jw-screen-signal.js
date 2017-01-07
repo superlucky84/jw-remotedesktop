@@ -9,8 +9,10 @@ var server = http.createServer().listen(12345,function(){
 
 /*
 var ROOMINFO =  {
-  host: null,
-  client: [],
+  'roomname': {
+    host: null,
+    client: []
+  }
 }
 */
 var ROOMINFO =  {};
@@ -20,19 +22,15 @@ io.set( 'origins', '*:*' );
 io.of('/vc');
 io.sockets.on('connection', function (socket) {
 
-  var roomnams = [];
+  var currentroom = null;
 
-  //socket.join(roomname);
-  //io.sockets.in(user_info.roomname).emit('user_list',user_list[user_info.roomname]);
-  //io.sockets.connected[socket.id].emit('join_exit_ok',true);
 
   socket.on('join', function(userType, roomname, callback) {
+
     socket.join(roomname);
 
+    currentroom = roomname;
 
-    if (roomnams.indexOf() < 0) {
-      roomnams.push(roomname);
-    }
 
     if (!ROOMINFO[roomname]) {
       ROOMINFO[roomname] = {};
@@ -41,8 +39,6 @@ io.sockets.on('connection', function (socket) {
     if (!ROOMINFO[roomname].client) {
       ROOMINFO[roomname].client = [];
     }
-
-    console.log("JJJJJJJJJJ----",roomname, socket.id);
 
     if (userType == 'sender') {
       ROOMINFO[roomname].host = socket.id;
@@ -86,15 +82,30 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('sendAnswer', function(wsid, desc) {
-    //console.log("SENDANASSER",wsid,room);
     io.sockets.connected[wsid].emit('receiveAnswer', desc, socket.id);
   });
 
   // 연결끊김
   socket.on('disconnect', function() {
-    roomnams.forEach(function(name) {
-      socket.leave(name);
-    });
+
+    // sender 일때 처리
+    if (ROOMINFO[currentroom] && ROOMINFO[currentroom].host == socket.id) {
+      delete ROOMINFO[currentroom].host;
+    }
+    // receiver 일때 처리
+    else if (ROOMINFO[currentroom] && ROOMINFO[currentroom].client ) {
+      var arr = ROOMINFO[currentroom].client;
+      arr.splice(arr.indexOf(socket.id),1);
+    }
+    socket.broadcast.emit('destroy', socket.id);
+    socket.leave(currentroom);
+
+    if (
+        ROOMINFO[currentroom] && ROOMINFO[currentroom].client.length == 0 && 
+        !ROOMINFO[currentroom] && ROOMINFO[currentroom].host
+    ){
+      delete ROOMINFO[currentroom];
+    }
 
   });
 });

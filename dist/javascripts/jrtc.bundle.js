@@ -71,6 +71,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = function () {
 	  function Jrtc(type, channel, ws, $video) {
+	    var _this = this;
+
 	    _classCallCheck(this, Jrtc);
 
 	    this.peer = {};
@@ -108,10 +110,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    /* datachannel sample */
 	    this.sendChannel = {};
-	    this.sendProgress = document.querySelector('progress#sendProgress');
-	    this.bytesToSend = Math.round(128) * 1024 * 1024;
-	    this.receiveProgress = document.querySelector('progress#receiveProgress');
-	    this.receivedSize = 0;
+
+	    this.ws.on('destroy', function (id) {
+	      if (_this.sendChannel[id]) {
+	        _this.sendChannel[id] = null;
+	        delete _this.sendChannel[id];
+	      }
+	      if (_this.peer[id]) {
+	        _this.peer[id].close();
+	        _this.peer[id] = null;
+	        delete _this.peer[id];
+	      }
+	    });
 	  }
 
 	  _createClass(Jrtc, [{
@@ -129,10 +139,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'getUserMedia',
 	    value: function getUserMedia() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(function (stream) {
-	        _this.setEvent(stream);
+	        _this2.setEvent(stream);
 	      }).catch(function (e) {
 	        alert('getUserMedia() error: ' + e.name);
 	      });
@@ -248,65 +258,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      if (readyState === 'open') {
 	        console.log('SENDGENERATE-DATA');
-	        //this.sendGeneratedData();
 
 	        this.sendChannel[id].send("REQUEST_REVERSE_DATA_CHANNAL");
-	      }
-	    }
-	  }, {
-	    key: 'sendGeneratedData',
-	    value: function sendGeneratedData() {
-	      var that = this;
-
-	      this.sendProgress.max = this.bytesToSend;
-	      this.sendProgress.value = 0;
-
-	      var chunkSize = 16384;
-	      var stringToSendRepeatedly = randomAsciiString(chunkSize);
-	      var bufferFullThreshold = 5 * chunkSize;
-	      var usePolling = true;
-	      if (typeof this.sendChannel[id].bufferedAmountLowThreshold === 'number') {
-	        usePolling = false;
-
-	        // Reduce the buffer fullness threshold, since we now have more efficient
-	        // buffer management.
-	        bufferFullThreshold = chunkSize / 2;
-
-	        // This is "overcontrol": our high and low thresholds are the same.
-	        this.sendChannel[id].bufferedAmountLowThreshold = bufferFullThreshold;
-	      }
-	      // Listen for one bufferedamountlow event.
-	      var listener = function listener() {
-	        that.sendChannel[id].removeEventListener('bufferedamountlow', listener);
-	        sendAllData();
-	      };
-	      var sendAllData = function sendAllData() {
-	        // Try to queue up a bunch of data and back off when the channel starts to
-	        // fill up. We don't setTimeout after each send since this lowers our
-	        // throughput quite a bit (setTimeout(fn, 0) can take hundreds of milli-
-	        // seconds to execute).
-	        while (that.sendProgress.value < that.sendProgress.max) {
-	          if (that.sendChannel[id].bufferedAmount > bufferFullThreshold) {
-	            if (usePolling) {
-	              setTimeout(sendAllData, 250);
-	            } else {
-	              that.sendChannel[id].addEventListener('bufferedamountlow', listener);
-	            }
-	            return;
-	          }
-	          that.sendProgress.value += chunkSize;
-	          that.sendChannel[id].send(stringToSendRepeatedly);
-	        }
-	      };
-	      setTimeout(sendAllData, 0);
-
-	      function randomAsciiString(length) {
-	        var result = '';
-	        for (var i = 0; i < length; i++) {
-	          // Visible ASCII chars are between 33 and 126.
-	          result += String.fromCharCode(33 + Math.random() * 93);
-	        }
-	        return result;
 	      }
 	    }
 	  }, {
@@ -348,24 +301,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'receiveChannelCallback',
 	    value: function receiveChannelCallback(id, event) {
 
-	      //this.receiveProgress.max = this.bytesToSend;
-	      //this.receiveProgress.value = 0;
-
 	      this.receiveChannel = event.channel;
 	      this.receiveChannel.binaryType = 'arraybuffer';
 	      this.receiveChannel.onmessage = this.onReceiveMessageCallback.bind(this);
-	      this.receivedSize = 0;
 	    }
 	  }, {
 	    key: 'onReceiveMessageCallback',
 	    value: function onReceiveMessageCallback(event) {
 	      console.log("RECEIVE DATA", event.data, _typeof(event.data));
-
-	      /*
-	      this.receivedSize += event.data.length;
-	      console.log(this.receivedSize);
-	      this.receiveProgress.value = this.receivedSize;
-	      */
 	    }
 	  }, {
 	    key: 'requestConnect',
