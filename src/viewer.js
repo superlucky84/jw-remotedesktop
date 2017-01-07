@@ -18,7 +18,6 @@ module.exports = class Viewer {
     this.option = option;
 
 
-
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'rswv-screen';
     this.canvas.tabIndex = 0;
