@@ -42,10 +42,9 @@ module.exports = class Viewer {
 
     this.emitter.on('keyboardUpdate', function(data) {
 
-        //var protocol =  Protocol['data'];
-        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
-        //var packet = new Parser.Encoder(schema, data||{}).pack();
-        //self.emitter.emit('dataSend',packet.buffer);
+        data.topic = 'KeyMouseCtrl:KeyEvent';
+        self.emitter.emit('dataSend', JSON.stringify(data));
+
     });
 
 
@@ -55,7 +54,6 @@ module.exports = class Viewer {
       if (mouse !== false) {
 
         var mask = 0;
-        console.log("MOUSE.BUTTONS--",mouse.buttons);
         if (mouse.buttons !== undefined) {
           for (var i = 0; i < mouse.buttons.length; i++) {
             mask += 1 << (mouse.buttons[i] - 1);
@@ -68,21 +66,23 @@ module.exports = class Viewer {
           y: mouse.y
         };
 
-        var protocol =  Protocol['data'];
-        var schema = protocol.get('KeyMouseCtrl:MouseEvent');
-        var packet = new Parser.Encoder(schema, data||{}).pack();
 
-        self.emitter.emit('dataSend',packet.buffer);
+        data.topic = 'KeyMouseCtrl:MouseEvent';
+        self.emitter.emit('dataSend', JSON.stringify(data));
 
       }
     });
 
     this.emitter.on('whiteboardUpdate', function(topic,data) {
 
-      //var protocol =  Protocol['data'];
-      //var schema = protocol.get(topic);
-      //var packet = new Parser.Encoder(schema, data||{}).pack();
-      //self.emitter.emit('dataSend',packet.buffer);
+
+      if (!data) {
+        data = {};
+      }
+
+      data.topic = topic;
+      self.emitter.emit('dataSend', JSON.stringify(data));
+
     });
 
 
