@@ -50,7 +50,7 @@
     var receiver = new Jrtc(
         'receiver',
         'all',
-        io.connect('http://localhost:12341'),
+        io.connect('https://superlucky.co.kr:12341'),
         document.querySelector('video')
     );
 
@@ -63,7 +63,7 @@
 
         console.log("RECEIVE DATA-hahah",event.data, typeof event.data);
 
-        sender = new Jrtc( 'sender', 'data', io.connect('http://localhost:12341'));
+        sender = new Jrtc( 'sender', 'data', io.connect('https://superlucky.co.kr:12341'));
         sender.setEvent();
 
         var rmid = new Date().getTime();
