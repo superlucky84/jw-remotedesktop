@@ -21,13 +21,13 @@
 
     let screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-    //let socket = io.connect('http://localhost:12345');
+    //let socket = io.connect('http://localhost:12341');
 
     let receiver = {};
     let sender = new Jrtc(
         'sender',
         'all',
-        io.connect('http://localhost:12345'),
+        io.connect('http://localhost:12341'),
         document.querySelector('video')
     );
 
@@ -58,7 +58,7 @@
 
               sender.receiveCreateRtc = function(id, roomname) {
 
-                receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12345'));
+                receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12341'));
 
 
                 // join 을 하면 센더에서 크레이트 피어를 합니다.

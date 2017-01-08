@@ -4,11 +4,11 @@
   "private": true,
   "main": "host.js",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "PORT=3000 node ./bin/www",
     "watch": "webpack --watch",
     "electron": "./node_modules/.bin/electron .",
     "rebuild": "./node_modules/.bin/electron-rebuild.cmd",
-    "all": "gulp watch & npm run start & node jw-screen-signal.js & npm run electron"
+    "all": "gulp watch & npm run start & PORT=3000 node jw-screen-signal.js & npm run electron"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
@@ -36,10 +36,10 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "browser-sync": "^2.12.5",
+    "electron-rebuild": "^1.4.0",
     "gulp": "^3.9.1",
     "gulp-util": "^3.0.7",
     "gulp-webpack": "^1.5.0",
-    "webpack": "^1.13.0",
-    "electron-rebuild": "^1.4.0"
+    "webpack": "^1.13.0"
   }
 }
