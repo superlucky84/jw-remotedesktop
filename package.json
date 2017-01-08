@@ -8,7 +8,8 @@
     "watch": "webpack --watch",
     "electron": "./node_modules/.bin/electron .",
     "rebuild": "./node_modules/.bin/electron-rebuild.cmd",
-    "all": "gulp watch & npm run start & PORT=3000 node jw-screen-signal.js & npm run electron"
+    "all": "gulp watch & npm run start & node jw-screen-signal.js & npm run electron",
+    "service":  "node ./bin/www & node jw-screen-signal.js"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
