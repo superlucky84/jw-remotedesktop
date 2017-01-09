@@ -41,6 +41,11 @@ module.exports = class Viewer {
 
     this.emitter.on('keyboardUpdate', function(data) {
 
+        //var protocol =  Protocol['data'];
+        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
+        //var packet = new Parser.Encoder(schema, data||{}).pack();
+        //self.emitter.emit('dataSend',packet.buffer);
+
         data.topic = 'KeyMouseCtrl:KeyEvent';
         console.log(data);
         self.emitter.emit('dataSend', JSON.stringify(data));
@@ -66,6 +71,11 @@ module.exports = class Viewer {
           y: mouse.y
         };
 
+        //var protocol =  Protocol['data'];
+        //var schema = protocol.get('KeyMouseCtrl:MouseEvent');
+        //var packet = new Parser.Encoder(schema, data||{}).pack();
+        //self.emitter.emit('dataSend',packet.buffer);
+
 
         data.topic = 'KeyMouseCtrl:MouseEvent';
         console.log(data);
@@ -80,10 +90,13 @@ module.exports = class Viewer {
         data = {};
       }
 
+      //var protocol =  Protocol['data'];
+      //var schema = protocol.get(topic);
+      //var packet = new Parser.Encoder(schema, data||{}).pack();
+
+
 
       data.topic = topic;
-
-
       console.log(data);
       self.emitter.emit('dataSend', JSON.stringify(data));
 
