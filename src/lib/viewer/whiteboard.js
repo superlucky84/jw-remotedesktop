@@ -11,14 +11,15 @@ export default class Whiteboard {
 
     this.emitter = option.emitter;
 
-    this.viewer = document.querySelector(".viewer");
-    this.screen = document.querySelector("#screen");
+    this.scaleWrap = document.querySelector(".scale-wrap");
+    this.screen = document.querySelector("#screen"),
 
     this.positions = [];
 
     this.point = {x:0, y:0};
 
     this.power = false;
+
     this.type = 0; // 0: free 1:직선 2:사각형 3:원형 4:화살표
     this.width = 3; // 선 두깨 1~5
     this.color = '#ff0000';
@@ -34,11 +35,11 @@ export default class Whiteboard {
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'whiteboard';
     this.canvas.id = 'whiteboard';
-    this.canvas.width = this.viewer.scrollWidth;
-    this.canvas.height = this.viewer.scrollHeight;
+    this.canvas.width = this.screen.offsetWidth;
+    this.canvas.height = this.screen.offsetHeight;
 
     this.canvas.tabIndex = 0;
-    this.viewer.appendChild(this.canvas);
+    this.scaleWrap.appendChild(this.canvas);
 
     this.context = this.canvas.getContext('2d');
 
@@ -52,14 +53,15 @@ export default class Whiteboard {
     this.power = true;
     $.addClass(this.canvas, 'show');
 
+    this.emitter.emit('whiteboardToggle', this.power);
     this.emitter.emit('whiteboardUpdate','Draw:Start');
-
   }
 
   off() {
     this.power = false;
     $.removeClass(this.canvas, 'show');
 
+    this.emitter.emit('whiteboardToggle', this.power);
     this.emitter.emit('whiteboardUpdate','Draw:End');
   }
 

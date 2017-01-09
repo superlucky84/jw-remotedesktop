@@ -17,6 +17,17 @@ body {
   user-select: none;
 }
 
+#screen {
+  transition: all .7s ease-in-out;
+}
+
+.scale-wrap {
+  position: relative;
+  border:1px solid red;
+  overflow: hidden;
+  margin: auto;
+}
+
 
 .viewer {
   position: absolute;
@@ -110,4 +121,16 @@ body {
   display: block;
 }
 
+.laserpointer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 2px solid blue;
+  box-sizing: border-box;
+  display: none;
+}
+
+.laserpointer.show {
+  display: block;
+}
 

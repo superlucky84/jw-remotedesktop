@@ -7,8 +7,9 @@ import Mouse from './lib/viewer/mouse';
 import Keyboard from './lib/viewer/keyboard';
 import Scroller from './lib/viewer/scroller';
 import Whiteboard from './lib/viewer/whiteboard';
-//import Protocol from './lib/rc.protocol';
-//import Parser from './lib/rc.parser.client'; 
+import Laserpointer from './lib/viewer/laserpointer';
+import Protocol from './lib/rc.protocol';
+import Parser from './lib/rc.parser.client'; 
 
 module.exports = class Viewer {
 
@@ -17,17 +18,14 @@ module.exports = class Viewer {
     this.emitter = new Emitter();
     this.option = option;
 
-
-    this.canvas = document.createElement('canvas');
-    this.canvas.className = 'rswv-screen';
-    this.canvas.tabIndex = 0;
+    this.viewer = document.querySelector(".viewer");
+    this.scaleArea = document.querySelector(".scale-wrap");
 
     this.started = false;
   }
 
   init(screenApp) {
 
-    let $viewer = document.querySelector(".viewer");
 
     var self = this;
 
@@ -103,6 +101,43 @@ module.exports = class Viewer {
     });
 
 
+    this.emitter.on('laserpointerUpdate', function(topic,data) {
+
+      if (!data) {
+        data = {};
+      }
+
+      //var protocol =  Protocol['data'];
+      //var schema = protocol.get(topic);
+      //var packet = new Parser.Encoder(schema, data||{}).pack();
+
+      data.topic = topic;
+      console.log(data);
+      self.emitter.emit('dataSend', JSON.stringify(data));
+
+    });
+
+    this.emitter.on('whiteboardToggle', (power) => {
+
+      document.querySelector(".display-whiteboard").innerHTML = (power)?'on':'off';
+
+      if (power == true && this.laserpointer.power == true) {
+        this.laserpointer.off();
+      }
+
+    });
+
+    this.emitter.on('laserpointerToggle', (power) => {
+
+      document.querySelector(".display-laserpointer").innerHTML = (power)?'on':'off';
+
+      if (power == true && this.whiteboard.power == true) {
+        this.whiteboard.off();
+      }
+
+    });
+
+
     setTimeout(()=>{
       this.scroller = new Scroller({
         'bounding': { 'X': 0, 'Y': 100 }
@@ -110,7 +145,47 @@ module.exports = class Viewer {
       this.whiteboard = new Whiteboard({
         'emitter': this.emitter
       });
+      this.laserpointer = new Laserpointer({
+        'emitter': this.emitter
+      });
+      self.setScale(1);
+
     },4000);
+
+
+    document.getElementById("scale-range").addEventListener('change', function () {
+
+      let scale = this.value;
+      self.setScale(scale);
+
+    });
+
+
+  }
+
+  setScale(scale) {
+    let self = this;
+
+    let screen = self.viewer.querySelector("video");
+    let laserpointer = self.viewer.querySelector("#laserpointer");
+    let whiteboard = self.viewer.querySelector("#whiteboard");
+
+    screen.style.transform = `scale(${scale})`;
+    screen.style.transformOrigin = 'left top';
+
+    laserpointer.style.transform = `scale(${scale})`;
+    laserpointer.style.transformOrigin = 'left top';
+
+    whiteboard.style.transform = `scale(${scale})`;
+    whiteboard.style.transformOrigin = 'left top';
+
+    document.querySelector(".display-scale").innerHTML = parseInt(scale*100);
+
+    self.scaleArea.style.width = Number(screen.offsetWidth * scale)+"px";
+    self.scaleArea.style.height = Number(screen.offsetHeight * scale)+"px";
+
+    self.scroller.makeScrollPosition();
+    self.scroller.setScrollTop();
 
   }
 
@@ -119,9 +194,6 @@ module.exports = class Viewer {
     this.emitter.emit('stop');
   }
 
-  setScale(scale) {
-    this.canvasDraw.setScale(scale);
-  }
 
 }
 

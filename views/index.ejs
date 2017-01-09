@@ -7,6 +7,13 @@
   <body>
 
     <div style="height: 100px;">
+
+
+      화면크기: <span class="display-scale">100%</span>
+      <input type="range" min="0.5" max="2" step="0.1" value="1" id="scale-range">
+
+
+      화이트보드: <span class="display-whiteboard">off</span>
       <button type="button" id="wb-toggle">on/off</button>
 
       <select id="wb-type">
@@ -32,11 +39,20 @@
         <option value="#FFFFFF">흰색</option>
       </select>
 
+      레이저포인트: <span class="display-laserpointer">off</span> 
+      <button type="button" id="lp-toggle">on/off</button>
+      <select id="lp-type">
+        <option value="0" selected="">화살표</option>
+        <option value="1">원</option>
+      </select>
+
     </div>
     
     <div class="viewer-wrap" tabindex="0">
       <div class="viewer" >
-        <video id="screen" src="" autoplay></video>
+        <div class="scale-wrap">
+          <video id="screen" src="" autoplay></video>
+        </div>
       </div>
     </div>
 
@@ -50,7 +66,7 @@
     var receiver = new Jrtc(
         'receiver',
         'all',
-        io.connect('http://superlucky.co.kr:12341'),
+        io.connect('http://localhost:12341'),
         document.querySelector('video')
     );
 
@@ -63,7 +79,7 @@
 
         console.log("RECEIVE DATA-hahah",event.data, typeof event.data);
 
-        sender = new Jrtc( 'sender', 'data', io.connect('http://superlucky.co.kr:12341'));
+        sender = new Jrtc( 'sender', 'data', io.connect('http://localhost:12341'));
         sender.setEvent();
 
         var rmid = new Date().getTime();
