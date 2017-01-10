@@ -149,18 +149,47 @@ module.exports = class Viewer {
         'emitter': this.emitter
       });
       self.setScale(1);
-
-    },4000);
+    },3000);
 
 
     document.getElementById("scale-range").addEventListener('change', function () {
 
       let scale = this.value;
       self.setScale(scale);
-
     });
 
 
+    document.getElementById("screenshot").addEventListener('click', function() {
+
+      let screen = self.viewer.querySelector("video");
+      let canvas = document.createElement('canvas');
+
+      canvas.width = screen.offsetWidth;
+      canvas.height = screen.offsetHeight;
+
+      let ctx = canvas.getContext('2d');
+      ctx.drawImage(screen, 0, 0, canvas.width, canvas.height);
+
+      let dataURI = canvas.toDataURL('image/jpeg');
+
+      let link = document.createElement('a');
+      link.href = dataURI;
+      link.download = "output.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    });
+
+    this.scaleArea.addEventListener('transitionend', () => {
+      console.log('transitionend-');
+      self.scroller.makeScrollPosition();
+      self.scroller.setScrollTop();
+    })
+
+  }
+
+  setFullScreen() {
   }
 
   setScale(scale) {
@@ -184,8 +213,6 @@ module.exports = class Viewer {
     self.scaleArea.style.width = Number(screen.offsetWidth * scale)+"px";
     self.scaleArea.style.height = Number(screen.offsetHeight * scale)+"px";
 
-    self.scroller.makeScrollPosition();
-    self.scroller.setScrollTop();
 
   }
 

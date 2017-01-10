@@ -286,6 +286,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      //$video.srcObject = e.stream;
 	      //$video.srcObject = e.stream;
 
+	      console.log('connectedSTREAM');
 	      this.$video.src = URL.createObjectURL(e.stream);
 	    }
 	  }, {
@@ -376,7 +377,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (this.type == 'receiver') {
 	        sendType = "sendAnswer";
 	      }
-	      console.log('JJJJJJJJJJJJJJJJJJJJ', sendType, id, desc);
 	      this.ws.emit(sendType, id, desc);
 	    }
 	  }, {
@@ -394,6 +394,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'onIceStateChange',
 	    value: function onIceStateChange(event, id) {
 	      console.log(this.peer[id].iceConnectionState);
+
+	      if (this.peer[id].iceConnectionState == 'connected') {
+	        this.connected();
+	      }
+	    }
+	  }, {
+	    key: 'connected',
+	    value: function connected() {
+	      console.log('not make');
 	    }
 	  }, {
 	    key: 'onCreateSessionDescriptionError',

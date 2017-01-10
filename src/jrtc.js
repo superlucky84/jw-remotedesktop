@@ -231,6 +231,7 @@ module.exports = class Jrtc {
     //$video.srcObject = e.stream;
     //$video.srcObject = e.stream;
 
+    console.log('connectedSTREAM');
     this.$video.src = URL.createObjectURL(e.stream);
 
   }
@@ -332,7 +333,6 @@ module.exports = class Jrtc {
     if (this.type == 'receiver') {
       sendType = "sendAnswer";
     }
-    console.log('JJJJJJJJJJJJJJJJJJJJ', sendType, id, desc);
     this.ws.emit(sendType, id, desc);
   }
 
@@ -352,6 +352,14 @@ module.exports = class Jrtc {
 
   onIceStateChange(event, id) {
     console.log(this.peer[id].iceConnectionState);
+
+    if (this.peer[id].iceConnectionState == 'connected') {
+      this.connected();
+    }
+
+  }
+  connected() {
+    console.log('not make');
   }
 
   onCreateSessionDescriptionError(error) {
