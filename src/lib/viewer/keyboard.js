@@ -238,7 +238,12 @@ export default class Keyboard {
 
 function addListeners(self) {
 
-  domEvent.add(self.inputTarget, 'keydown', function(event) {
+  self.inputTarget.querySelector('.viewer').addEventListener('click', function() {
+    self.inputTarget.focus();
+  });
+
+
+  domEvent.add(document.body, 'keydown', function(event) {
 
     var keyCode = event.which;
     if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) { //!A-Z || ctrl || alt
@@ -249,7 +254,7 @@ function addListeners(self) {
     return false;
   });
 
-  domEvent.add(self.inputTarget, 'keypress', function(event) {
+  domEvent.add(document.body, 'keypress', function(event) {
 
 
     var keyCode = event.which;
@@ -266,7 +271,7 @@ function addListeners(self) {
     return false;
   });
 
-  domEvent.add(self.inputTarget, 'keyup', function(event) {
+  domEvent.add(document.body, 'keyup', function(event) {
 
     var keyCode = event.which;
     sendKey(self, event)

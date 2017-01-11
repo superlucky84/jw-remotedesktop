@@ -31,6 +31,7 @@ body {
 }
 
 
+
 .viewer {
   position: absolute;
   margin:0;
@@ -54,6 +55,10 @@ body {
   width: 100%;
   height: calc(100% - 100px);
   overflow: hidden;
+}
+
+.viewer-wrap.fullscreen {
+  height: 100%;
 }
 
 
@@ -134,5 +139,31 @@ body {
 
 .laserpointer.show {
   display: block;
+}
+
+
+#toolbox {
+  height: 100px; 
+  background-color: #cdcdcd;
+}
+
+#toolbox.fullscreen {
+  opacity: 0;
+  height: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  overflow: hidden;
+
+  transition: all 300ms ease;
+}
+
+#toolbox.fullscreen:hover {
+  opacity: 1;
+  height: 100px;
+
+  transition: all 300ms ease;
 }
 

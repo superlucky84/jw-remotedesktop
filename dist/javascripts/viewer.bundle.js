@@ -100,204 +100,287 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	module.exports = function () {
-	    function Viewer(option) {
-	        _classCallCheck(this, Viewer);
+	  function Viewer(option) {
+	    _classCallCheck(this, Viewer);
 
-	        this.emitter = new _emitter2.default();
-	        this.option = option;
+	    this.emitter = new _emitter2.default();
+	    this.option = option;
 
-	        this.viewer = document.querySelector(".viewer");
-	        this.scaleArea = document.querySelector(".scale-wrap");
+	    this.viewerWrap = document.querySelector(".viewer-wrap");
+	    this.viewer = document.querySelector(".viewer");
+	    this.scaleArea = document.querySelector(".scale-wrap");
 
-	        this.started = false;
+	    this.scale = 1;
+	    this.fullscreen = false;
+	  }
+
+	  _createClass(Viewer, [{
+	    key: 'init',
+	    value: function init(screenApp) {
+	      var _this = this;
+
+	      var self = this;
+
+	      this.mouse = new _mouse2.default({
+	        'emitter': this.emitter
+	      });
+
+	      this.keyboard = new _keyboard2.default({
+	        'emitter': this.emitter
+	      });
+
+	      this.emitter.on('keyboardUpdate', function (data) {
+
+	        //var protocol =  Protocol['data'];
+	        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
+	        //var packet = new Parser.Encoder(schema, data||{}).pack();
+	        //self.emitter.emit('dataSend',packet.buffer);
+
+	        data.topic = 'KeyMouseCtrl:KeyEvent';
+	        console.log(data);
+	        self.emitter.emit('dataSend', JSON.stringify(data));
+	      });
+
+	      this.emitter.on('mouseUpdate', function () {
+
+	        var mouse = self.mouse.state.mouse;
+	        if (mouse !== false) {
+
+	          var mask = 0;
+	          if (mouse.buttons !== undefined) {
+	            for (var i = 0; i < mouse.buttons.length; i++) {
+	              mask += 1 << mouse.buttons[i] - 1;
+	            }
+	          }
+
+	          var data = {
+	            buttonMask: mask,
+	            x: mouse.x,
+	            y: mouse.y
+	          };
+
+	          //var protocol =  Protocol['data'];
+	          //var schema = protocol.get('KeyMouseCtrl:MouseEvent');
+	          //var packet = new Parser.Encoder(schema, data||{}).pack();
+	          //self.emitter.emit('dataSend',packet.buffer);
+
+
+	          data.topic = 'KeyMouseCtrl:MouseEvent';
+	          console.log(data);
+	          self.emitter.emit('dataSend', JSON.stringify(data));
+	        }
+	      });
+
+	      this.emitter.on('whiteboardUpdate', function (topic, data) {
+
+	        if (!data) {
+	          data = {};
+	        }
+
+	        //var protocol =  Protocol['data'];
+	        //var schema = protocol.get(topic);
+	        //var packet = new Parser.Encoder(schema, data||{}).pack();
+
+
+	        data.topic = topic;
+	        console.log(data);
+	        self.emitter.emit('dataSend', JSON.stringify(data));
+	      });
+
+	      this.emitter.on('laserpointerUpdate', function (topic, data) {
+
+	        if (!data) {
+	          data = {};
+	        }
+
+	        //var protocol =  Protocol['data'];
+	        //var schema = protocol.get(topic);
+	        //var packet = new Parser.Encoder(schema, data||{}).pack();
+
+	        data.topic = topic;
+	        console.log(data);
+	        self.emitter.emit('dataSend', JSON.stringify(data));
+	      });
+
+	      this.emitter.on('whiteboardToggle', function (power) {
+
+	        document.querySelector(".display-whiteboard").innerHTML = power ? 'on' : 'off';
+
+	        if (power == true && _this.laserpointer.power == true) {
+	          _this.laserpointer.off();
+	        }
+	      });
+
+	      this.emitter.on('laserpointerToggle', function (power) {
+
+	        document.querySelector(".display-laserpointer").innerHTML = power ? 'on' : 'off';
+
+	        if (power == true && _this.whiteboard.power == true) {
+	          _this.whiteboard.off();
+	        }
+	      });
+
+	      setTimeout(function () {
+	        _this.scroller = new _scroller2.default({
+	          'bounding': { 'X': 0, 'Y': 100 }
+	        });
+	        _this.whiteboard = new _whiteboard2.default({
+	          'emitter': _this.emitter
+	        });
+	        _this.laserpointer = new _laserpointer2.default({
+	          'emitter': _this.emitter
+	        });
+	        self.setScale(1);
+	      }, 3000);
+
+	      document.getElementById("scale-range").addEventListener('change', function () {
+
+	        var scale = this.value;
+	        self.setScale(scale);
+	      });
+
+	      document.getElementById("screenshot").addEventListener('click', function () {
+
+	        var screen = self.viewer.querySelector("video");
+	        var canvas = document.createElement('canvas');
+
+	        canvas.width = screen.offsetWidth;
+	        canvas.height = screen.offsetHeight;
+
+	        var ctx = canvas.getContext('2d');
+	        ctx.drawImage(screen, 0, 0, canvas.width, canvas.height);
+
+	        var dataURI = canvas.toDataURL('image/jpeg');
+
+	        var link = document.createElement('a');
+	        link.href = dataURI;
+	        link.download = "output.png";
+	        document.body.appendChild(link);
+	        link.click();
+	        document.body.removeChild(link);
+	      });
+
+	      this.scaleArea.addEventListener('transitionend', function () {
+	        console.log('transitionend-');
+	        self.scroller.makeScrollPosition();
+	        self.scroller.setScrollTop();
+	      });
+
+	      document.getElementById("viewer-fullscreen").addEventListener('click', function () {
+	        self.toggleFullScreen();
+	      });
+
+	      window.addEventListener('resize', function () {
+
+	        self.changeCenter();
+
+	        if (window.innerHeight == screen.height) {
+	          self.setFullScreen(true);
+	        } else {
+	          console.log('isnot---fullscreen');
+	          self.setFullScreen(false);
+	        }
+	      });
 	    }
+	  }, {
+	    key: 'setFullScreen',
+	    value: function setFullScreen(isfullscreen) {
 
-	    _createClass(Viewer, [{
-	        key: 'init',
-	        value: function init(screenApp) {
-	            var _this = this;
+	      this.fullscreen = isfullscreen;
 
-	            var self = this;
+	      var toolbox = document.getElementById("toolbox");
 
-	            this.mouse = new _mouse2.default({
-	                'emitter': this.emitter
-	            });
+	      if (isfullscreen) {
 
-	            this.keyboard = new _keyboard2.default({
-	                'emitter': this.emitter
-	            });
+	        _domHelper2.default.addClass(toolbox, 'fullscreen');
+	        _domHelper2.default.addClass(this.viewerWrap, 'fullscreen');
 
-	            this.emitter.on('keyboardUpdate', function (data) {
+	        this.setScale(this.scale);
+	      } else {
 
-	                //var protocol =  Protocol['data'];
-	                //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
-	                //var packet = new Parser.Encoder(schema, data||{}).pack();
-	                //self.emitter.emit('dataSend',packet.buffer);
-
-	                data.topic = 'KeyMouseCtrl:KeyEvent';
-	                console.log(data);
-	                self.emitter.emit('dataSend', JSON.stringify(data));
-	            });
-
-	            this.emitter.on('mouseUpdate', function () {
-
-	                var mouse = self.mouse.state.mouse;
-	                if (mouse !== false) {
-
-	                    var mask = 0;
-	                    if (mouse.buttons !== undefined) {
-	                        for (var i = 0; i < mouse.buttons.length; i++) {
-	                            mask += 1 << mouse.buttons[i] - 1;
-	                        }
-	                    }
-
-	                    var data = {
-	                        buttonMask: mask,
-	                        x: mouse.x,
-	                        y: mouse.y
-	                    };
-
-	                    //var protocol =  Protocol['data'];
-	                    //var schema = protocol.get('KeyMouseCtrl:MouseEvent');
-	                    //var packet = new Parser.Encoder(schema, data||{}).pack();
-	                    //self.emitter.emit('dataSend',packet.buffer);
-
-
-	                    data.topic = 'KeyMouseCtrl:MouseEvent';
-	                    console.log(data);
-	                    self.emitter.emit('dataSend', JSON.stringify(data));
-	                }
-	            });
-
-	            this.emitter.on('whiteboardUpdate', function (topic, data) {
-
-	                if (!data) {
-	                    data = {};
-	                }
-
-	                //var protocol =  Protocol['data'];
-	                //var schema = protocol.get(topic);
-	                //var packet = new Parser.Encoder(schema, data||{}).pack();
-
-
-	                data.topic = topic;
-	                console.log(data);
-	                self.emitter.emit('dataSend', JSON.stringify(data));
-	            });
-
-	            this.emitter.on('laserpointerUpdate', function (topic, data) {
-
-	                if (!data) {
-	                    data = {};
-	                }
-
-	                //var protocol =  Protocol['data'];
-	                //var schema = protocol.get(topic);
-	                //var packet = new Parser.Encoder(schema, data||{}).pack();
-
-	                data.topic = topic;
-	                console.log(data);
-	                self.emitter.emit('dataSend', JSON.stringify(data));
-	            });
-
-	            this.emitter.on('whiteboardToggle', function (power) {
-
-	                document.querySelector(".display-whiteboard").innerHTML = power ? 'on' : 'off';
-
-	                if (power == true && _this.laserpointer.power == true) {
-	                    _this.laserpointer.off();
-	                }
-	            });
-
-	            this.emitter.on('laserpointerToggle', function (power) {
-
-	                document.querySelector(".display-laserpointer").innerHTML = power ? 'on' : 'off';
-
-	                if (power == true && _this.whiteboard.power == true) {
-	                    _this.whiteboard.off();
-	                }
-	            });
-
-	            setTimeout(function () {
-	                _this.scroller = new _scroller2.default({
-	                    'bounding': { 'X': 0, 'Y': 100 }
-	                });
-	                _this.whiteboard = new _whiteboard2.default({
-	                    'emitter': _this.emitter
-	                });
-	                _this.laserpointer = new _laserpointer2.default({
-	                    'emitter': _this.emitter
-	                });
-	                self.setScale(1);
-	            }, 3000);
-
-	            document.getElementById("scale-range").addEventListener('change', function () {
-
-	                var scale = this.value;
-	                self.setScale(scale);
-	            });
-
-	            document.getElementById("screenshot").addEventListener('click', function () {
-
-	                var screen = self.viewer.querySelector("video");
-	                var canvas = document.createElement('canvas');
-
-	                canvas.width = screen.offsetWidth;
-	                canvas.height = screen.offsetHeight;
-
-	                var ctx = canvas.getContext('2d');
-	                ctx.drawImage(screen, 0, 0, canvas.width, canvas.height);
-
-	                var dataURI = canvas.toDataURL('image/jpeg');
-
-	                var link = document.createElement('a');
-	                link.href = dataURI;
-	                link.download = "output.png";
-	                document.body.appendChild(link);
-	                link.click();
-	                document.body.removeChild(link);
-	            });
-
-	            this.scaleArea.addEventListener('transitionend', function () {
-	                console.log('transitionend-');
-	                self.scroller.makeScrollPosition();
-	                self.scroller.setScrollTop();
-	            });
+	        _domHelper2.default.removeClass(toolbox, 'fullscreen');
+	        _domHelper2.default.removeClass(this.viewerWrap, 'fullscreen');
+	        this.setScale(this.scale);
+	      }
+	    }
+	  }, {
+	    key: 'toggleFullScreen',
+	    value: function toggleFullScreen() {
+	      if (!document.fullscreenElement && // alternative standard method
+	      !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+	        // current working methods
+	        if (document.documentElement.requestFullscreen) {
+	          document.documentElement.requestFullscreen();
+	        } else if (document.documentElement.msRequestFullscreen) {
+	          document.documentElement.msRequestFullscreen();
+	        } else if (document.documentElement.mozRequestFullScreen) {
+	          document.documentElement.mozRequestFullScreen();
+	        } else if (document.documentElement.webkitRequestFullscreen) {
+	          document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
 	        }
-	    }, {
-	        key: 'setFullScreen',
-	        value: function setFullScreen() {}
-	    }, {
-	        key: 'setScale',
-	        value: function setScale(scale) {
-	            var self = this;
+	      } else {
 
-	            var screen = self.viewer.querySelector("video");
-	            var laserpointer = self.viewer.querySelector("#laserpointer");
-	            var whiteboard = self.viewer.querySelector("#whiteboard");
-
-	            screen.style.transform = 'scale(' + scale + ')';
-	            screen.style.transformOrigin = 'left top';
-
-	            laserpointer.style.transform = 'scale(' + scale + ')';
-	            laserpointer.style.transformOrigin = 'left top';
-
-	            whiteboard.style.transform = 'scale(' + scale + ')';
-	            whiteboard.style.transformOrigin = 'left top';
-
-	            document.querySelector(".display-scale").innerHTML = parseInt(scale * 100);
-
-	            self.scaleArea.style.width = Number(screen.offsetWidth * scale) + "px";
-	            self.scaleArea.style.height = Number(screen.offsetHeight * scale) + "px";
+	        if (document.exitFullscreen) {
+	          document.exitFullscreen();
+	        } else if (document.msExitFullscreen) {
+	          document.msExitFullscreen();
+	        } else if (document.mozCancelFullScreen) {
+	          document.mozCancelFullScreen();
+	        } else if (document.webkitExitFullscreen) {
+	          document.webkitExitFullscreen();
 	        }
-	    }, {
-	        key: 'stop',
-	        value: function stop() {
-	            this.emitter.emit('stop');
-	        }
-	    }]);
+	      }
+	    }
+	  }, {
+	    key: 'changeCenter',
+	    value: function changeCenter() {
 
-	    return Viewer;
+	      var self = this;
+
+	      var screen = self.viewer.querySelector("video");
+
+	      var marginHeight = (self.viewer.offsetHeight - Number(screen.offsetHeight * self.scale)) / 2;
+
+	      if (marginHeight <= 0) {
+	        marginHeight = 0;
+	      }
+	      self.scaleArea.style.top = marginHeight + "px";
+	    }
+	  }, {
+	    key: 'setScale',
+	    value: function setScale(scale) {
+
+	      var self = this;
+	      self.scale = scale;
+
+	      var screen = self.viewer.querySelector("video");
+	      var laserpointer = self.viewer.querySelector("#laserpointer");
+	      var whiteboard = self.viewer.querySelector("#whiteboard");
+
+	      screen.style.transform = 'scale(' + scale + ')';
+	      screen.style.transformOrigin = 'left top';
+
+	      laserpointer.style.transform = 'scale(' + scale + ')';
+	      laserpointer.style.transformOrigin = 'left top';
+
+	      whiteboard.style.transform = 'scale(' + scale + ')';
+	      whiteboard.style.transformOrigin = 'left top';
+
+	      document.querySelector(".display-scale").innerHTML = parseInt(scale * 100);
+
+	      self.scaleArea.style.width = Number(screen.offsetWidth * scale) + "px";
+	      self.scaleArea.style.height = Number(screen.offsetHeight * scale) + "px";
+
+	      self.changeCenter();
+	    }
+	  }, {
+	    key: 'stop',
+	    value: function stop() {
+	      this.emitter.emit('stop');
+	    }
+	  }]);
+
+	  return Viewer;
 	}();
 
 /***/ },
@@ -1686,7 +1769,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function addListeners(self) {
 
-	  _domEvent2.default.add(self.inputTarget, 'keydown', function (event) {
+	  self.inputTarget.querySelector('.viewer').addEventListener('click', function () {
+	    self.inputTarget.focus();
+	  });
+
+	  _domEvent2.default.add(document.body, 'keydown', function (event) {
 
 	    var keyCode = event.which;
 	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) {
@@ -1698,7 +1785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return false;
 	  });
 
-	  _domEvent2.default.add(self.inputTarget, 'keypress', function (event) {
+	  _domEvent2.default.add(document.body, 'keypress', function (event) {
 
 	    var keyCode = event.which;
 	    if (keyCode >= 97 && keyCode <= 122) {
@@ -1715,7 +1802,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return false;
 	  });
 
-	  _domEvent2.default.add(self.inputTarget, 'keyup', function (event) {
+	  _domEvent2.default.add(document.body, 'keyup', function (event) {
 
 	    var keyCode = event.which;
 	    sendKey(self, event);

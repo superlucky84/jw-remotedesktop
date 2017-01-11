@@ -187,7 +187,6 @@ export default class Scroller extends Emitter {
       self.setScrollTop();
     });
 
-
     self.psY.addEventListener('mousedown', function(evt) {
       self.scrollDragStandard.Y[0] = evt.screenY;
       self.scrollDragStandard.Y[1] = self.scrollInner.scrollTop;

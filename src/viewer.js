@@ -18,10 +18,13 @@ module.exports = class Viewer {
     this.emitter = new Emitter();
     this.option = option;
 
+
+    this.viewerWrap = document.querySelector(".viewer-wrap");
     this.viewer = document.querySelector(".viewer");
     this.scaleArea = document.querySelector(".scale-wrap");
 
-    this.started = false;
+    this.scale = 1;
+    this.fullscreen = false;
   }
 
   init(screenApp) {
@@ -187,13 +190,105 @@ module.exports = class Viewer {
       self.scroller.setScrollTop();
     })
 
+    document.getElementById("viewer-fullscreen").addEventListener('click', () => {
+      self.toggleFullScreen();
+    });
+
+
+
+
+
+
+    window.addEventListener('resize',function() {
+
+      self.changeCenter();
+
+      if( window.innerHeight == screen.height) {
+        self.setFullScreen(true);
+      }
+      else {
+        console.log('isnot---fullscreen');
+        self.setFullScreen(false);
+      }
+
+    });
+
+
+
+
+
   }
 
-  setFullScreen() {
+  setFullScreen(isfullscreen) {
+
+    this.fullscreen = isfullscreen;
+
+    let toolbox = document.getElementById("toolbox");
+
+    if (isfullscreen) {
+
+      $.addClass(toolbox, 'fullscreen');
+      $.addClass(this.viewerWrap, 'fullscreen');
+
+      this.setScale(this.scale);
+    }
+    else {
+
+      $.removeClass(toolbox, 'fullscreen');
+      $.removeClass(this.viewerWrap, 'fullscreen');
+      this.setScale(this.scale);
+
+    }
+  }
+
+  toggleFullScreen() {
+    if (!document.fullscreenElement &&    // alternative standard method
+        !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+      } else if (document.documentElement.mozRequestFullScreen) {
+        document.documentElement.mozRequestFullScreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      }
+    } else {
+
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+  }
+
+
+
+  changeCenter() {
+
+    let self = this;
+
+    let screen = self.viewer.querySelector("video");
+
+    let marginHeight = (self.viewer.offsetHeight - Number(screen.offsetHeight * self.scale)) / 2;
+
+    if (marginHeight <= 0) {
+      marginHeight = 0;
+    }
+    self.scaleArea.style.top = marginHeight+"px";
+
   }
 
   setScale(scale) {
+
+
     let self = this;
+    self.scale = scale;
 
     let screen = self.viewer.querySelector("video");
     let laserpointer = self.viewer.querySelector("#laserpointer");
@@ -210,8 +305,14 @@ module.exports = class Viewer {
 
     document.querySelector(".display-scale").innerHTML = parseInt(scale*100);
 
+
+
     self.scaleArea.style.width = Number(screen.offsetWidth * scale)+"px";
     self.scaleArea.style.height = Number(screen.offsetHeight * scale)+"px";
+
+
+    self.changeCenter();
+
 
 
   }
