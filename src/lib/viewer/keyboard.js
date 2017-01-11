@@ -247,7 +247,7 @@ function addListeners(self) {
 
     var keyCode = event.which;
     if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) { //!A-Z || ctrl || alt
-      event.preventDefault();
+      //event.preventDefault();
       sendKey(self, event);
     }
     event.stopPropagation();

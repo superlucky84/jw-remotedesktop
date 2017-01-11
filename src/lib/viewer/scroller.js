@@ -15,7 +15,6 @@ export default class Scroller extends Emitter {
     this.scrollWrap = document.querySelector(".viewer-wrap");
     this.scrollInner = this.scrollWrap.querySelector('.viewer');
 
-    this.scrollShowTimeout = null;
 
     this.psX = null;
     this.psY = null;
@@ -32,6 +31,11 @@ export default class Scroller extends Emitter {
       'X': false,
       'Y': false 
     }
+
+    this.scrollShowTimeout = {
+      X: null, 
+      Y: null
+    };
 
     this.scrollMoveTimeout = {
       X: null, 
@@ -112,15 +116,35 @@ export default class Scroller extends Emitter {
 
   scrollShy() {
 
-    $.addClass(this.scX, 'show');
-    $.addClass(this.scY, 'show');
+    var jwscroll = this.scrollInner;
 
-    clearTimeout(this.scrollShowTimeout);
 
-    this.scrollShowTimeout = setTimeout(() => {
-      $.removeClass(this.scX, 'show');
-      $.removeClass(this.scY, 'show');
-    },1000);
+    if ( jwscroll.scrollWidth > jwscroll.clientWidth ) {
+      $.addClass(this.scX, 'show');
+      clearTimeout(this.scrollShowTimeout.X);
+      this.scrollShowTimeout.X = setTimeout(() => {
+        $.removeClass(this.scX, 'show');
+      },1000);
+    }
+
+    if ( jwscroll.scrollHeight > jwscroll.clientHeight ) {
+      $.addClass(this.scY, 'show');
+      clearTimeout(this.scrollShowTimeout.Y);
+      this.scrollShowTimeout.Y = setTimeout(() => {
+        $.removeClass(this.scY, 'show');
+      },1000);
+    }
+
+    if ($.hasClass(this.scX,'show') && $.hasClass(this.scY,'show')) {
+
+      $.addClass(this.scX, 'all');
+      $.addClass(this.scY, 'all');
+    }
+    else {
+      $.removeClass(this.scX, 'all');
+      $.removeClass(this.scY, 'all');
+    }
+
 
   }
 

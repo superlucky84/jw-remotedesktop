@@ -61,7 +61,6 @@ body {
   height: 100%;
 }
 
-
 .viewer-wrap .sc-y {
   position: absolute;
   box-sizing: border-box;
@@ -74,14 +73,11 @@ body {
   transition: opacity 800ms ease;
 }
 
-.viewer-wrap .ps-y {
-  position: absolute;
-  border-radius: 5px;
-  background-color: green;
-  left: 0;
-  right: 0;
-  cursor: default;
-
+.viewer-wrap .sc-y.all {
+  bottom: 14px;
+}
+.viewer-wrap .sc-x.all {
+  right: 14px;
 }
 
 .viewer-wrap .sc-x {
@@ -94,6 +90,17 @@ body {
   opacity: 0;
   background-color: rgba(185, 171, 171, 0.5);
   transition: opacity 800ms ease;
+}
+
+
+.viewer-wrap .ps-y {
+  position: absolute;
+  border-radius: 5px;
+  background-color: green;
+  left: 0;
+  right: 0;
+  cursor: default;
+
 }
 
 .viewer-wrap .ps-x {

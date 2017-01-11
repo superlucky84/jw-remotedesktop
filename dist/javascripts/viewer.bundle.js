@@ -1778,7 +1778,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var keyCode = event.which;
 	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) {
 	      //!A-Z || ctrl || alt
-	      event.preventDefault();
+	      //event.preventDefault();
 	      sendKey(self, event);
 	    }
 	    event.stopPropagation();
@@ -1990,8 +1990,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.scrollWrap = document.querySelector(".viewer-wrap");
 	    _this.scrollInner = _this.scrollWrap.querySelector('.viewer');
 
-	    _this.scrollShowTimeout = null;
-
 	    _this.psX = null;
 	    _this.psY = null;
 
@@ -2006,6 +2004,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.drag = {
 	      'X': false,
 	      'Y': false
+	    };
+
+	    _this.scrollShowTimeout = {
+	      X: null,
+	      Y: null
 	    };
 
 	    _this.scrollMoveTimeout = {
@@ -2086,15 +2089,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function scrollShy() {
 	      var _this2 = this;
 
-	      _domHelper2.default.addClass(this.scX, 'show');
-	      _domHelper2.default.addClass(this.scY, 'show');
+	      var jwscroll = this.scrollInner;
 
-	      clearTimeout(this.scrollShowTimeout);
+	      if (jwscroll.scrollWidth > jwscroll.clientWidth) {
+	        _domHelper2.default.addClass(this.scX, 'show');
+	        clearTimeout(this.scrollShowTimeout.X);
+	        this.scrollShowTimeout.X = setTimeout(function () {
+	          _domHelper2.default.removeClass(_this2.scX, 'show');
+	        }, 1000);
+	      }
 
-	      this.scrollShowTimeout = setTimeout(function () {
-	        _domHelper2.default.removeClass(_this2.scX, 'show');
-	        _domHelper2.default.removeClass(_this2.scY, 'show');
-	      }, 1000);
+	      if (jwscroll.scrollHeight > jwscroll.clientHeight) {
+	        _domHelper2.default.addClass(this.scY, 'show');
+	        clearTimeout(this.scrollShowTimeout.Y);
+	        this.scrollShowTimeout.Y = setTimeout(function () {
+	          _domHelper2.default.removeClass(_this2.scY, 'show');
+	        }, 1000);
+	      }
+
+	      if (_domHelper2.default.hasClass(this.scX, 'show') && _domHelper2.default.hasClass(this.scY, 'show')) {
+
+	        _domHelper2.default.addClass(this.scX, 'all');
+	        _domHelper2.default.addClass(this.scY, 'all');
+	      } else {
+	        _domHelper2.default.removeClass(this.scX, 'all');
+	        _domHelper2.default.removeClass(this.scY, 'all');
+	      }
 	    }
 	  }, {
 	    key: 'initEvent',
