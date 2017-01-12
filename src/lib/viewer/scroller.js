@@ -86,8 +86,6 @@ export default class Scroller extends Emitter {
     var virticalPercent = (clientHeight/scrollHeight) * 100;
     psY.style.height = virticalPercent+"%";
 
-    //var posHeight = parseInt(clientHeight * (clientHeight/scrollHeight));
-    //psY.style.height = posHeight+"px";
 
     var psX = this.psX;
     var scrollWidth = jwscroll.scrollWidth;
@@ -96,8 +94,6 @@ export default class Scroller extends Emitter {
     var holiPercent = (clientWidth/scrollWidth) * 100;
     psX.style.width = holiPercent+"%";
 
-    //var posWidth = parseInt(clientWidth * (clientWidth/scrollWidth));
-    //psX.style.width = posWidth+"px";
 
   }
 
@@ -108,17 +104,21 @@ export default class Scroller extends Emitter {
     var psY = this.psY;
     var scrollHeight = jwscroll.scrollHeight;
     var clientHeight = jwscroll.clientHeight;
+    var scrollBottom = scrollHeight - clientHeight;
+    var scrollBottomPer = (jwscroll.scrollTop / scrollHeight) * 100;
+
     this.rating.Y = clientHeight/scrollHeight;
-    var scrollTop = jwscroll.scrollTop * this.rating.Y;
-    psY.style.top = scrollTop+"px";
+    psY.style.top = scrollBottomPer+"%";
+
 
     var psX = this.psX;
     var scrollWidth = jwscroll.scrollWidth;
     var clientWidth = jwscroll.clientWidth;
-    this.rating.X = clientWidth/scrollWidth;
-    var scrollLeft = jwscroll.scrollLeft * this.rating.X;
-    psX.style.left = scrollLeft+"px";
+    var scrollRight = scrollWidth - clientWidth;
+    var scrollRightPer = (jwscroll.scrollLeft / scrollWidth) * 100;
 
+    this.rating.X = clientWidth/scrollWidth;
+    psX.style.left = scrollRightPer+"%";
 
   }
 
@@ -126,7 +126,6 @@ export default class Scroller extends Emitter {
   scrollShy() {
 
     var jwscroll = this.scrollInner;
-
 
     if ( jwscroll.scrollWidth > jwscroll.clientWidth ) {
       $.addClass(this.scX, 'show');

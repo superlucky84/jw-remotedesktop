@@ -69,7 +69,7 @@ body {
   right: 0;
   width: 14px;
   opacity: 0;
-  background-color: rgba(185, 171, 171, 0.5);
+  background-color: rgba(148, 94, 94, 0.52);
   transition: opacity 800ms ease;
   box-sizing: border-box;
 }
@@ -82,7 +82,7 @@ body {
   bottom: 0;
   height: 14px;
   opacity: 0;
-  background-color: rgba(185, 171, 171, 0.5);
+  background-color: rgba(148, 94, 94, 0.52);
   transition: opacity 800ms ease;
   box-sizing: border-box;
 }
@@ -100,9 +100,9 @@ body {
 .viewer-wrap .ps-y {
   position: absolute;
   border-radius: 5px;
-  background-color: green;
-  left: 0;
-  right: 0;
+  background-color: #fff;
+  left: 4px;
+  right: 4px;
   cursor: default;
   box-sizing: border-box;
 
@@ -111,9 +111,9 @@ body {
 .viewer-wrap .ps-x {
   position: absolute;
   border-radius: 5px;
-  background-color: green;
-  top: 0;
-  bottom: 0;
+  background-color: #fff;
+  top: 4px;
+  bottom: 4px;
   cursor: default;
   box-sizing: border-box;
 }
