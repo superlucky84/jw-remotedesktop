@@ -71,13 +71,7 @@ body {
   opacity: 0;
   background-color: rgba(185, 171, 171, 0.5);
   transition: opacity 800ms ease;
-}
-
-.viewer-wrap .sc-y.all {
-  bottom: 14px;
-}
-.viewer-wrap .sc-x.all {
-  right: 14px;
+  box-sizing: border-box;
 }
 
 .viewer-wrap .sc-x {
@@ -90,7 +84,17 @@ body {
   opacity: 0;
   background-color: rgba(185, 171, 171, 0.5);
   transition: opacity 800ms ease;
+  box-sizing: border-box;
 }
+
+
+.viewer-wrap .sc-y.all {
+  bottom: 14px;
+}
+.viewer-wrap .sc-x.all {
+  right: 14px;
+}
+
 
 
 .viewer-wrap .ps-y {
@@ -100,6 +104,7 @@ body {
   left: 0;
   right: 0;
   cursor: default;
+  box-sizing: border-box;
 
 }
 
@@ -110,6 +115,7 @@ body {
   top: 0;
   bottom: 0;
   cursor: default;
+  box-sizing: border-box;
 }
 
 

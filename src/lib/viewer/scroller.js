@@ -82,14 +82,22 @@ export default class Scroller extends Emitter {
     var psY = this.psY;
     var scrollHeight = jwscroll.scrollHeight;
     var clientHeight = jwscroll.clientHeight;
-    var posHeight = parseInt(clientHeight * (clientHeight/scrollHeight));
-    psY.style.height = posHeight+"px";
+
+    var virticalPercent = (clientHeight/scrollHeight) * 100;
+    psY.style.height = virticalPercent+"%";
+
+    //var posHeight = parseInt(clientHeight * (clientHeight/scrollHeight));
+    //psY.style.height = posHeight+"px";
 
     var psX = this.psX;
     var scrollWidth = jwscroll.scrollWidth;
     var clientWidth = jwscroll.clientWidth;
-    var posWidth = parseInt(clientWidth * (clientWidth/scrollWidth));
-    psX.style.width = posWidth+"px";
+
+    var holiPercent = (clientWidth/scrollWidth) * 100;
+    psX.style.width = holiPercent+"%";
+
+    //var posWidth = parseInt(clientWidth * (clientWidth/scrollWidth));
+    //psX.style.width = posWidth+"px";
 
   }
 
@@ -110,6 +118,7 @@ export default class Scroller extends Emitter {
     this.rating.X = clientWidth/scrollWidth;
     var scrollLeft = jwscroll.scrollLeft * this.rating.X;
     psX.style.left = scrollLeft+"px";
+
 
   }
 
@@ -136,7 +145,6 @@ export default class Scroller extends Emitter {
     }
 
     if ($.hasClass(this.scX,'show') && $.hasClass(this.scY,'show')) {
-
       $.addClass(this.scX, 'all');
       $.addClass(this.scY, 'all');
     }

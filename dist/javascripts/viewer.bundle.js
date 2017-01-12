@@ -2055,14 +2055,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var psY = this.psY;
 	      var scrollHeight = jwscroll.scrollHeight;
 	      var clientHeight = jwscroll.clientHeight;
-	      var posHeight = parseInt(clientHeight * (clientHeight / scrollHeight));
-	      psY.style.height = posHeight + "px";
+
+	      var virticalPercent = clientHeight / scrollHeight * 100;
+	      psY.style.height = virticalPercent + "%";
+
+	      //var posHeight = parseInt(clientHeight * (clientHeight/scrollHeight));
+	      //psY.style.height = posHeight+"px";
 
 	      var psX = this.psX;
 	      var scrollWidth = jwscroll.scrollWidth;
 	      var clientWidth = jwscroll.clientWidth;
-	      var posWidth = parseInt(clientWidth * (clientWidth / scrollWidth));
-	      psX.style.width = posWidth + "px";
+
+	      var holiPercent = clientWidth / scrollWidth * 100;
+	      psX.style.width = holiPercent + "%";
+
+	      //var posWidth = parseInt(clientWidth * (clientWidth/scrollWidth));
+	      //psX.style.width = posWidth+"px";
 	    }
 	  }, {
 	    key: 'setScrollTop',
@@ -2108,7 +2116,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      if (_domHelper2.default.hasClass(this.scX, 'show') && _domHelper2.default.hasClass(this.scY, 'show')) {
-
 	        _domHelper2.default.addClass(this.scX, 'all');
 	        _domHelper2.default.addClass(this.scY, 'all');
 	      } else {
