@@ -242,7 +242,21 @@ function addListeners(self) {
     self.inputTarget.focus();
   });
 
+  domEvent.add(document.body, 'keydown', function(event) {
+    sendKey(self, event);
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  });
 
+
+  domEvent.add(document.body, 'keypress', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  });
+
+  /*
   domEvent.add(document.body, 'keydown', function(event) {
 
     var keyCode = event.which;
@@ -270,10 +284,10 @@ function addListeners(self) {
     event.preventDefault();
     return false;
   });
+  */
 
   domEvent.add(document.body, 'keyup', function(event) {
 
-    var keyCode = event.which;
     sendKey(self, event)
     event.stopPropagation();
     event.preventDefault();
@@ -289,14 +303,35 @@ function preventEvent(event) {
 
 function sendKey(self, event) {
 
-
   if (self.active === false || event.target !== self.inputTarget) {
     return;
   }
-  var isDown = (event.type == 'keydown' || event.type == 'keypress') ? 1 : 0
+
+  //var isDown = (event.type == 'keydown' || event.type == 'keypress') ? 1 : 0
+  var isDown = (event.type == 'keydown') ? 1 : 0
     , keyCode = event.which
     , isShift = event.shiftKey
     , specialkeystate = 0;
+
+
+
+
+  /* TEST NEW */
+  console.log(event.type, keyCode);
+
+
+  /*
+
+  self.emitter.emit('keyboardUpdate',{
+    'down': isDown,
+    'key': keyCode,
+    'specialkeystate': specialkeystate
+  });
+  */
+
+
+
+  /* ORIGINAL
   if (event.type == 'keypress' && keyCode >= 97 && keyCode <= 122) {
     keyCode -= 32;
   }
@@ -332,8 +367,11 @@ function sendKey(self, event) {
   self.emitter.emit('keyboardUpdate',{
     'down': isDown,
     'key': parseInt(keyCode),
+    //'key': event.which,
     'specialkeystate': specialkeystate
   });
+
+  */
 
 }
 

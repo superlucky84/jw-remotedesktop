@@ -1774,26 +1774,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 
 	  _domEvent2.default.add(document.body, 'keydown', function (event) {
+	    sendKey(self, event);
+	    event.preventDefault();
+	    event.stopPropagation();
+	    return false;
+	  });
 
-	    var keyCode = event.which;
-	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) {
-	      //!A-Z || ctrl || alt
+	  _domEvent2.default.add(document.body, 'keypress', function (event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    return false;
+	  });
+
+	  /*
+	  domEvent.add(document.body, 'keydown', function(event) {
+	      var keyCode = event.which;
+	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) { //!A-Z || ctrl || alt
 	      //event.preventDefault();
 	      sendKey(self, event);
 	    }
 	    event.stopPropagation();
 	    return false;
 	  });
-
-	  _domEvent2.default.add(document.body, 'keypress', function (event) {
-
+	    domEvent.add(document.body, 'keypress', function(event) {
+	  
 	    var keyCode = event.which;
-	    if (keyCode >= 97 && keyCode <= 122) {
-	      //lowercase
+	    if (keyCode >= 97 && keyCode <= 122) { //lowercase
 	      self.state.capslock = event.shiftKey;
 	      sendKey(self, event);
-	    } else if (keyCode >= 65 && keyCode <= 90 && !(event.shiftKey && self.isMac)) {
-	      //uppercase
+	    }
+	    else if (keyCode >= 65 && keyCode <= 90 && !(event.shiftKey && self.isMac)) { //uppercase
 	      self.state.capslock = !event.shiftKey;
 	      sendKey(self, event);
 	    }
@@ -1801,10 +1811,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    event.preventDefault();
 	    return false;
 	  });
+	  */
 
 	  _domEvent2.default.add(document.body, 'keyup', function (event) {
 
-	    var keyCode = event.which;
 	    sendKey(self, event);
 	    event.stopPropagation();
 	    event.preventDefault();
@@ -1823,10 +1833,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (self.active === false || event.target !== self.inputTarget) {
 	    return;
 	  }
-	  var isDown = event.type == 'keydown' || event.type == 'keypress' ? 1 : 0,
+
+	  //var isDown = (event.type == 'keydown' || event.type == 'keypress') ? 1 : 0
+	  var isDown = event.type == 'keydown' ? 1 : 0,
 	      keyCode = event.which,
 	      isShift = event.shiftKey,
 	      specialkeystate = 0;
+
+	  /* TEST NEW */
+	  console.log(event.type, keyCode);
+
+	  /*
+	    self.emitter.emit('keyboardUpdate',{
+	    'down': isDown,
+	    'key': keyCode,
+	    'specialkeystate': specialkeystate
+	  });
+	  */
+
+	  /* ORIGINAL
 	  if (event.type == 'keypress' && keyCode >= 97 && keyCode <= 122) {
 	    keyCode -= 32;
 	  }
@@ -1842,7 +1867,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  if (event.getModifierState !== undefined) {
 	    self.state.capslock = self.state.capslock || event.getModifierState('CapsLock');
-	    self.state.numlock = event.getModifierState('NumLock');
+	    self.state.numlock = event.getModifierState('NumLock')
 	    self.state.scrolllock = event.getModifierState('ScrollLock') === true || event.getModifierState('Scroll') === true;
 	  }
 	  if (self.state.capslock === true) {
@@ -1857,12 +1882,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (isShift === true) {
 	    specialkeystate += 8;
 	  }
-
-	  self.emitter.emit('keyboardUpdate', {
+	  
+	  self.emitter.emit('keyboardUpdate',{
 	    'down': isDown,
 	    'key': parseInt(keyCode),
+	    //'key': event.which,
 	    'specialkeystate': specialkeystate
 	  });
+	    */
 	}
 
 /***/ },

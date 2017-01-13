@@ -12,20 +12,22 @@
     <script src="dist/javascripts/jrtc.bundle.js"></script>
     <script>
 
+
     const {desktopCapturer, screen} =  require('electron');
     const robot = require("robotjs");
-    robot.moveMouse(30, 30);
+    robot.setMouseDelay(1);
+    robot.setKeyboardDelay(1);
 
-    //let screenSize = screen.getPrimaryDisplay().workAreaSize;
     let screenSize = screen.getPrimaryDisplay().size;
 
-    //let socket = io.connect('http://localhost:12345');
+    let socketUrl = 'http://superlucky.co.kr:12341';
+    //let socketUrl = 'http://localhost:12341';
 
     let receiver = {};
     let sender = new Jrtc(
         'sender',
         'all',
-        io.connect('http://localhost:12341'),
+        io.connect(socketUrl),
         document.querySelector('video')
     );
 
@@ -35,12 +37,11 @@
       for (let i = 0; i < sources.length; ++i) {
         console.log('NAME---',sources[i]);
 
-        if (sources[i].id.match(/^screen:/)) {
+        //if (sources[i].id.match(/^screen:/)) {
+        if (sources[i].id.match(/^screen:1:0/)) {
 
           console.log('NAME---',sources[i].thumbnail.getSize());
 
-          console.log("AA-",screenSize.width);
-          console.log("AA-",screenSize.height);
 
           navigator.webkitGetUserMedia({
             audio: false,
@@ -59,15 +60,45 @@
 
               sender.receiveCreateRtc = function(id, roomname) {
 
-                receiver[id] = new Jrtc( 'receiver', 'data', io.connect('http://localhost:12341'));
+                receiver[id] = new Jrtc( 'receiver', 'data', io.connect(socketUrl));
 
 
                 // join 을 하면 센더에서 크레이트 피어를 합니다.
                 receiver[id].join(roomname);
 
+                let mouseDown = false;
+
                 receiver[id].onReceiveMessageCallback = function(event) {
-                  var data = JSON.parse(event.data);
+                  let data = JSON.parse(event.data);
+
                   console.log("va-",data);
+
+                  if (data.topic == 'KeyMouseCtrl:KeyEvent') {
+                    robot.keyToggle(String.fromCharCode(data.key), (data.down==1)?'down':'up');
+                  }
+
+
+                  if (data.topic == 'KeyMouseCtrl:MouseEvent') {
+                    robot.moveMouse(data.x, data.y);
+
+                    if (!mouseDown && data.buttonMask == 1) {
+                      robot.mouseToggle("down");
+                      mouseDown = true;
+                    }
+
+                    if (mouseDown) {
+                      robot.dragMouse(data.x,data.y);
+                    }
+
+                    if (mouseDown && data.buttonMask == 0) {
+                      mouseDown = false;
+                    }
+
+                    if (data.buttonMask == 0)  {
+                      robot.mouseToggle("up");
+                    }
+                  }
+
                 }
               }
 
