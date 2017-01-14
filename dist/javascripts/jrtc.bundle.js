@@ -96,9 +96,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      iceServers: [{
 	        url: 'stun:104.236.113.81:3478'
 	      }, {
-	        url: 'turn:104.236.113.81:3478?transport=tcp'
+	        url: 'turn:104.236.113.81:3478?transport=tcp',
+	        credential: 'fd8f745ea7a07828e6690fa0d080e522',
+	        username: 'jj'
 	      }, {
-	        url: 'turn:104.236.113.81:3478?transport=udp'
+	        url: 'turn:104.236.113.81:3478?transport=udp',
+	        credential: 'fd8f745ea7a07828e6690fa0d080e522',
+	        username: 'jj'
 	      }]
 	    };
 
