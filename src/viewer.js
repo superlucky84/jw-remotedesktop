@@ -8,8 +8,8 @@ import Keyboard from './lib/viewer/keyboard';
 import Scroller from './lib/viewer/scroller';
 import Whiteboard from './lib/viewer/whiteboard';
 import Laserpointer from './lib/viewer/laserpointer';
-import Protocol from './lib/rc.protocol';
-import Parser from './lib/rc.parser.client'; 
+//import Protocol from './lib/rc.protocol';
+//import Parser from './lib/rc.parser.client'; 
 
 module.exports = class Viewer {
 
