@@ -66,11 +66,13 @@
     <script>
 
 
-    //var socket = io.connect('http://localhost:12341');
+    //var socketUrl = 'http://localhost:12341';
+    var socketUrl = 'https://superlucky.co.kr:12341';
+
     var receiver = new Jrtc(
         'receiver',
         'all',
-        io.connect('http://localhost:12341'),
+        io.connect(socketUrl),
         document.querySelector('video')
     );
 
@@ -98,7 +100,11 @@
 
         console.log("RECEIVE DATA-hahah",event.data, typeof event.data);
 
-        sender = new Jrtc( 'sender', 'data', io.connect('http://localhost:12341'));
+        sender = new Jrtc( 
+          'sender', 
+          'data', 
+          io.connect(socketUrl)
+        );
         sender.setEvent();
 
         var rmid = new Date().getTime();

@@ -1,10 +1,22 @@
 var http     = require('http');
 var socketio = require('socket.io');
+var fs = require('fs');
 
+var server_handler = function (req, res) {
+  res.writeHead(404);
+  res.end();
+};
 
-var server = http.createServer().listen(12341,function(){
-    console.log('Server Running at screenshare singnaling');
-});
+//var server = https.createServer().listen(12341,function(){
+    //console.log('Server Running at screenshare singnaling');
+//});
+
+var server = require('https').Server({
+  key: fs.readFileSync(__dirname+'/jssl.key'),
+  cert: fs.readFileSync(__dirname+'/1_superlucky.co.kr_bundle.crt')
+}, server_handler);
+
+server.listen(12341);
 
 
 /*
@@ -101,7 +113,7 @@ io.sockets.on('connection', function (socket) {
     socket.leave(currentroom);
 
     if (
-        ROOMINFO[currentroom] && ROOMINFO[currentroom].client.length == 0 && 
+        ROOMINFO[currentroom] && ROOMINFO[currentroom].client.length == 0 &&
         !ROOMINFO[currentroom] && ROOMINFO[currentroom].host
     ){
       delete ROOMINFO[currentroom];
@@ -109,7 +121,3 @@ io.sockets.on('connection', function (socket) {
 
   });
 });
-
-
-
-

@@ -9,8 +9,8 @@ function createWindow () {
   win = new BrowserWindow({width: 800, height: 600})
 
   // and load the index.html of the app.
-  win.loadURL(`file://${__dirname}/host.html`)
-  //win.loadURL('http:localhost:3000/host')
+  //win.loadURL(`file://${__dirname}/host.html`)
+  win.loadURL('https://webrtc.superlucky.co.kr/host')
 
   // Open the DevTools.
   win.webContents.openDevTools()
