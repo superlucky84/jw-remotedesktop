@@ -90,19 +90,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.stream = null;
 
-	    //credential: 'fd8f745ea7a07828e6690fa0d080e522',
-	    //username: 'jj'
+	    //uperlucky:d942f75fd1572da3bb2e3bd3fe1426bd
 	    this.iceConfig = {
 	      iceServers: [{
 	        url: 'stun:104.236.113.81:3478'
 	      }, {
 	        url: 'turn:104.236.113.81:3478?transport=tcp',
-	        credential: 'jinw1121',
-	        username: 'jj'
+	        credential: 'dufmawhgdk11',
+	        username: 'uperlucky'
 	      }, {
 	        url: 'turn:104.236.113.81:3478?transport=udp',
-	        credential: 'jinw1121',
-	        username: 'jj'
+	        credential: 'dufmawhgdk11',
+	        username: 'uperlucky'
 	      }]
 	    };
 
