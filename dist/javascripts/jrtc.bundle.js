@@ -96,11 +96,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        url: 'stun:104.236.113.81:3478'
 	      }, {
 	        url: 'turn:104.236.113.81:3478?transport=tcp',
-	        credential: 'dufmawhgdk11',
+	        credential: 'd942f75fd1572da3bb2e3bd3fe1426bd',
 	        username: 'superlucky'
 	      }, {
 	        url: 'turn:104.236.113.81:3478?transport=udp',
-	        credential: 'dufmawhgdk11',
+	        credential: 'd942f75fd1572da3bb2e3bd3fe1426bd',
 	        username: 'superlucky'
 	      }]
 	    };
