@@ -1822,7 +1822,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  /*
 	  domEvent.add(document.body, 'keydown', function(event) {
-	      var keyCode = event.which;
+	     var keyCode = event.which;
 	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) { //!A-Z || ctrl || alt
 	      //event.preventDefault();
 	      sendKey(self, event);
@@ -1830,9 +1830,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    event.stopPropagation();
 	    return false;
 	  });
-	    domEvent.add(document.body, 'keypress', function(event) {
-	  
-	    var keyCode = event.which;
+	   domEvent.add(document.body, 'keypress', function(event) {
+	      var keyCode = event.which;
 	    if (keyCode >= 97 && keyCode <= 122) { //lowercase
 	      self.state.capslock = event.shiftKey;
 	      sendKey(self, event);
@@ -1927,14 +1926,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (isShift === true) {
 	    specialkeystate += 8;
 	  }
-	  
-	  self.emitter.emit('keyboardUpdate',{
+	    self.emitter.emit('keyboardUpdate',{
 	    'down': isDown,
 	    'key': parseInt(keyCode),
 	    //'key': event.which,
 	    'specialkeystate': specialkeystate
 	  });
-	    */
+	   */
 	}
 
 /***/ },
