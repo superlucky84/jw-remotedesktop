@@ -46,6 +46,31 @@ export default class Keyboard {
     this.active = false;
   }
 
+  reDefineKeycode(keyCode) {
+
+    let keymap = {
+      '220': 92,
+      '219': 91,
+      '221': 93,
+      '189': 45,
+      '187': 61,
+      '186': 59,
+      '222': 39,
+      '188': 44,
+      '190': 46,
+      '191': 47
+    }
+
+    return (keymap[keyCode])?keymap[keyCode]:keyCode;
+
+    /*
+    return {
+      ''
+    }[keyCode];
+    */
+
+  }
+
   setKeysym() {
     return {
       '8'  : 0xFF08,  // backspace
@@ -242,7 +267,18 @@ function addListeners(self) {
     self.inputTarget.focus();
   });
 
+  domEvent.add(document.body, 'keypress', function(event) {
+    console.log('keypress: ', event.which);
+
+    event.stopPropagation();
+    event.preventDefault();
+    return false;
+  });
+
   domEvent.add(document.body, 'keydown', function(event) {
+
+    console.log('keydown: ', event.which, event.shiftKey);
+
     sendKey(self, event);
     event.preventDefault();
     event.stopPropagation();
@@ -250,9 +286,12 @@ function addListeners(self) {
   });
 
 
-  domEvent.add(document.body, 'keypress', function(event) {
-    event.preventDefault();
+  domEvent.add(document.body, 'keyup', function(event) {
+    console.log('keyup: ', event.which);
+
+    sendKey(self, event)
     event.stopPropagation();
+    event.preventDefault();
     return false;
   });
 
@@ -286,13 +325,6 @@ function addListeners(self) {
   });
   */
 
-  domEvent.add(document.body, 'keyup', function(event) {
-
-    sendKey(self, event)
-    event.stopPropagation();
-    event.preventDefault();
-    return false;
-  });
 }
 
 function preventEvent(event) {
@@ -306,29 +338,47 @@ function sendKey(self, event) {
   if (self.active === false || event.target !== self.inputTarget) {
     return;
   }
+  console.log("EVENT",event);
 
   //var isDown = (event.type == 'keydown' || event.type == 'keypress') ? 1 : 0
   var isDown = (event.type == 'keydown') ? 1 : 0
     , keyCode = event.which
     , isShift = event.shiftKey
+    , isCtrl = event.ctrlKey
     , specialkeystate = 0;
 
 
+  console.log("ISSHIFT",isShift);
+
+
+  let keyString = "";
+
+  if (keyCode >=60 && keyCode <=90) {
+    keyCode += 32;
+  }
+
+  if ([16,17].indexOf(keyCode) >= 0 ) {
+    return;
+  }
+
+  keyCode = self.reDefineKeycode(keyCode);
+
+  keyString = String.fromCharCode(keyCode);
 
 
   /* TEST NEW */
-  console.log(event.type, keyCode);
 
 
-  /*
+  console.log(keyCode, keyString);
+
 
   self.emitter.emit('keyboardUpdate',{
     'down': isDown,
-    'key': keyCode,
+    'key': keyString,
+    'isShift': isShift,
+    'isCtrl': isCtrl,
     'specialkeystate': specialkeystate
   });
-  */
-
 
 
   /* ORIGINAL

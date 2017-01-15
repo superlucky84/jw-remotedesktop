@@ -1570,6 +1570,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.active = false;
 	    }
 	  }, {
+	    key: 'reDefineKeycode',
+	    value: function reDefineKeycode(keyCode) {
+
+	      var keymap = {
+	        '220': 92,
+	        '219': 91,
+	        '221': 93,
+	        '189': 45,
+	        '187': 61,
+	        '186': 59,
+	        '222': 39,
+	        '188': 44,
+	        '190': 46,
+	        '191': 47
+	      };
+
+	      return keymap[keyCode] ? keymap[keyCode] : keyCode;
+
+	      /*
+	      return {
+	        ''
+	      }[keyCode];
+	      */
+	    }
+	  }, {
 	    key: 'setKeysym',
 	    value: function setKeysym() {
 	      return {
@@ -1768,22 +1793,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	    self.inputTarget.focus();
 	  });
 
+	  _domEvent2.default.add(document.body, 'keypress', function (event) {
+	    console.log('keypress: ', event.which);
+
+	    event.stopPropagation();
+	    event.preventDefault();
+	    return false;
+	  });
+
 	  _domEvent2.default.add(document.body, 'keydown', function (event) {
+
+	    console.log('keydown: ', event.which, event.shiftKey);
+
 	    sendKey(self, event);
 	    event.preventDefault();
 	    event.stopPropagation();
 	    return false;
 	  });
 
-	  _domEvent2.default.add(document.body, 'keypress', function (event) {
-	    event.preventDefault();
+	  _domEvent2.default.add(document.body, 'keyup', function (event) {
+	    console.log('keyup: ', event.which);
+
+	    sendKey(self, event);
 	    event.stopPropagation();
+	    event.preventDefault();
 	    return false;
 	  });
 
 	  /*
 	  domEvent.add(document.body, 'keydown', function(event) {
-	     var keyCode = event.which;
+	      var keyCode = event.which;
 	    if (keyCode < 65 || keyCode > 90 || event.ctrlKey === true || event.altKey === true) { //!A-Z || ctrl || alt
 	      //event.preventDefault();
 	      sendKey(self, event);
@@ -1791,8 +1830,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    event.stopPropagation();
 	    return false;
 	  });
-	   domEvent.add(document.body, 'keypress', function(event) {
-	      var keyCode = event.which;
+	    domEvent.add(document.body, 'keypress', function(event) {
+	  
+	    var keyCode = event.which;
 	    if (keyCode >= 97 && keyCode <= 122) { //lowercase
 	      self.state.capslock = event.shiftKey;
 	      sendKey(self, event);
@@ -1806,14 +1846,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return false;
 	  });
 	  */
-
-	  _domEvent2.default.add(document.body, 'keyup', function (event) {
-
-	    sendKey(self, event);
-	    event.stopPropagation();
-	    event.preventDefault();
-	    return false;
-	  });
 	}
 
 	function preventEvent(event) {
@@ -1827,23 +1859,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (self.active === false || event.target !== self.inputTarget) {
 	    return;
 	  }
+	  console.log("EVENT", event);
 
 	  //var isDown = (event.type == 'keydown' || event.type == 'keypress') ? 1 : 0
 	  var isDown = event.type == 'keydown' ? 1 : 0,
 	      keyCode = event.which,
 	      isShift = event.shiftKey,
+	      isCtrl = event.ctrlKey,
 	      specialkeystate = 0;
 
-	  /* TEST NEW */
-	  console.log(event.type, keyCode);
+	  console.log("ISSHIFT", isShift);
 
-	  /*
-	   self.emitter.emit('keyboardUpdate',{
+	  var keyString = "";
+
+	  if (keyCode >= 60 && keyCode <= 90) {
+	    keyCode += 32;
+	  }
+
+	  if ([16, 17].indexOf(keyCode) >= 0) {
+	    return;
+	  }
+
+	  keyCode = self.reDefineKeycode(keyCode);
+
+	  keyString = String.fromCharCode(keyCode);
+
+	  /* TEST NEW */
+
+	  console.log(keyCode, keyString);
+
+	  self.emitter.emit('keyboardUpdate', {
 	    'down': isDown,
-	    'key': keyCode,
+	    'key': keyString,
+	    'isShift': isShift,
+	    'isCtrl': isCtrl,
 	    'specialkeystate': specialkeystate
 	  });
-	  */
 
 	  /* ORIGINAL
 	  if (event.type == 'keypress' && keyCode >= 97 && keyCode <= 122) {
@@ -1876,13 +1927,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (isShift === true) {
 	    specialkeystate += 8;
 	  }
-	    self.emitter.emit('keyboardUpdate',{
+	  
+	  self.emitter.emit('keyboardUpdate',{
 	    'down': isDown,
 	    'key': parseInt(keyCode),
 	    //'key': event.which,
 	    'specialkeystate': specialkeystate
 	  });
-	   */
+	    */
 	}
 
 /***/ },
