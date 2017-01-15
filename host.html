@@ -72,9 +72,25 @@
                   let data = JSON.parse(event.data);
 
                   console.log("va-",data);
+                  let option = [];
+
+
+
+
+                  if (data.isShift) option.push('shift');
+                  if (data.isCtrl) option.push('control');
+
+                  if (data.key == 'w' && data.isShift) {
+                    option = ['control'];
+                  }
+
 
                   if (data.topic == 'KeyMouseCtrl:KeyEvent') {
-                    robot.keyToggle(String.fromCharCode(data.key), (data.down==1)?'down':'up');
+                    robot.keyToggle(
+                        data.key, 
+                        (data.down==1)?'down':'up',
+                        option
+                    );
                   }
 
 
