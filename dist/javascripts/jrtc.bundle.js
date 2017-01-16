@@ -90,6 +90,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.stream = null;
 
+	    this.streamIds = [];
+
 	    //uperlucky:d942f75fd1572da3bb2e3bd3fe1426bd
 	    this.iceConfig = {
 	      iceServers: [{
@@ -163,7 +165,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          console.log('Stream inactive');
 	        };
 
-	        window.stream = stream;
 	        that.$video.srcObject = stream;
 	      }
 
@@ -261,6 +262,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        console.log('SENDGENERATE-DATA');
 
 	        this.sendChannel[id].send("REQUEST_REVERSE_DATA_CHANNAL");
+	        this.sendChannel[id].send("STREAM_IDS--" + this.streamIds.join("||||"));
 	      }
 	    }
 	  }, {
@@ -281,11 +283,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'gotRemoteStream',
 	    value: function gotRemoteStream(e) {
-	      //video.srcObject = e.stream;
-	      //video.src = URL.createObjectURL(e.stream);
-	      //let $this = ReactDOM.findDOMNode(this);
-	      //$video.srcObject = e.stream;
-	      //$video.srcObject = e.stream;
 
 	      console.log('connectedSTREAM');
 	      this.$video.src = URL.createObjectURL(e.stream);

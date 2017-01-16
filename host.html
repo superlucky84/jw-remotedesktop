@@ -6,7 +6,8 @@
   </head>
   <body>
 		<progress id="sendProgress" max="0" value="0"></progress>
-		<video autoplay></video>
+    <div id="VIDEOS">
+    </div>
 
     <script src="dist/javascripts/socket.io.js"></script>
     <script src="dist/javascripts/jrtc.bundle.js"></script>
@@ -20,118 +21,167 @@
 
     let screenSize = screen.getPrimaryDisplay().size;
 
-    let socketUrl = 'https://superlucky.co.kr:12341';
-    //let socketUrl = 'http://localhost:12341';
+    //let socketUrl = 'https://superlucky.co.kr:12341';
+    let socketUrl = 'http://localhost:12341';
 
     let receiver = {};
+    let sender = {
+      'screen-main': null
+    };
+    let streamIds = [];
+    /*
     let sender = new Jrtc(
         'sender',
         'all',
         io.connect(socketUrl),
         document.querySelector('video')
     );
+    */
 
 
-    desktopCapturer.getSources({types: ['window', 'screen']}, (error, sources) => {
-      if (error) throw error
-      for (let i = 0; i < sources.length; ++i) {
-        console.log('NAME---',sources[i]);
+    desktopCapturer.getSources({types: ['screen']}, (error, sources) => {
 
-        if (sources[i].id.match(/^screen:/)) {
-        //if (sources[i].id.match(/^screen:0:0/)) {
+      sources.forEach(function(source) {
+        console.log(source);
 
-          console.log('NAME---',sources[i].thumbnail.getSize());
-
-
-          navigator.webkitGetUserMedia({
-            audio: false,
-            video: {
-              mandatory: {
-                chromeMediaSource: 'desktop',
-                chromeMediaSourceId: sources[i].id,
-                minWidth: screenSize.width,
-                maxWidth: screenSize.width,
-                minHeight: screenSize.height,
-                maxHeight: screenSize.height
-              }
+        navigator.webkitGetUserMedia({
+          audio: false,
+          video: {
+            mandatory: {
+              chromeMediaSource: 'desktop',
+              chromeMediaSourceId: source.id,
+              minWidth: screenSize.width,
+              maxWidth: screenSize.width,
+              minHeight: screenSize.height,
+              maxHeight: screenSize.height
             }
-            }, function(stream) {
-              sender.setEvent(stream);
+          }
+        },
+        function(stream) {
 
-              sender.receiveCreateRtc = function(id, roomname) {
+          console.log("STREAM",stream);
 
-                receiver[id] = new Jrtc( 'receiver', 'data', io.connect(socketUrl));
+          if (sender['screen-main'] == null) {
+            sender['screen-main'] = createSender(socketUrl, 'all', sources.length);
+            sender['screen-main'].setEvent(stream);
+            sender['screen-main'].receiveCreateRtc = receiveCreateRtc;
 
-
-                // join 을 하면 센더에서 크레이트 피어를 합니다.
-                receiver[id].join(roomname);
-
-                let mouseDown = false;
-
-                receiver[id].onReceiveMessageCallback = function(event) {
-                  let data = JSON.parse(event.data);
-
-                  console.log("va-",data);
-                  let option = [];
-
-
-
-
-                  if (data.isShift) option.push('shift');
-                  if (data.isCtrl) option.push('control');
-
-                  if (data.key == 'w' && data.isShift) {
-                    option = ['control'];
-                  }
-
-
-                  if (data.topic == 'KeyMouseCtrl:KeyEvent') {
-                    robot.keyToggle(
-                        data.key, 
-                        (data.down==1)?'down':'up',
-                        option
-                    );
-                  }
-
-
-                  if (data.topic == 'KeyMouseCtrl:MouseEvent') {
-                    robot.moveMouse(data.x, data.y);
-
-                    if (!mouseDown && data.buttonMask == 1) {
-                      robot.mouseToggle("down");
-                      mouseDown = true;
-                    }
-
-                    if (mouseDown) {
-                      robot.dragMouse(data.x,data.y);
-                    }
-
-                    if (mouseDown && data.buttonMask == 0) {
-                      mouseDown = false;
-                    }
-
-                    if (data.buttonMask == 0)  {
-                      robot.mouseToggle("up");
-                    }
-                  }
-
-                }
-              }
-
-              sender.join('mainroom', function(receveirIds) {
-                receveirIds.forEach(function(id) {
-                  sender.createPeer(id);
-                  sender.createOffer(id);
-                });
+            sender['screen-main'].join('screen-main', function(receveirIds) {
+              receveirIds.forEach(function(id) {
+                sender['screen-main'].createPeer(id);
+                sender['screen-main'].createOffer(id);
               });
+            });
 
-            }, handleError)
-          return
+          }
+          else {
+            sender['screen-main'].streamIds.push(stream.id);
+
+            sender['screen-sub-'+stream.id] = createSender(socketUrl, 'screen', sources.length);
+            sender['screen-sub-'+stream.id].setEvent(stream);
+
+            sender['screen-sub-'+stream.id].join('screen-sub-'+stream.id, function(receveirIds) {
+              receveirIds.forEach(function(id) {
+                sender['screen-sub-'+stream.id].createPeer(id);
+                sender['screen-sub-'+stream.id].createOffer(id);
+              });
+            });
+          }
+
+
+        }, 
+        handleError);
+
+      });
+
+    });
+
+
+
+    function createSender(socketUrl, channleType, length) {
+
+      let videoElement = document.createElement("video");
+
+      videoElement.style.width = parseInt(100/length)+"%";
+
+      let $VIDEOS = document.getElementById('VIDEOS');
+      $VIDEOS.appendChild(videoElement);
+
+
+      let sender = new Jrtc(
+          'sender',
+          channleType, //all or screen
+          io.connect(socketUrl),
+          videoElement
+      );
+
+      return sender;
+
+    }
+
+
+    function receiveCreateRtc(id, roomname) {
+
+      receiver[id] = new Jrtc( 'receiver', 'data', io.connect(socketUrl));
+
+
+      // join 을 하면 센더에서 크레이트 피어를 합니다.
+      receiver[id].join(roomname);
+
+      let mouseDown = false;
+
+      receiver[id].onReceiveMessageCallback = function(event) {
+        let data = JSON.parse(event.data);
+
+        console.log("va-",data);
+        let option = [];
+
+
+
+
+        if (data.isShift) option.push('shift');
+        if (data.isCtrl) option.push('control');
+
+        if (data.key == 'w' && data.isShift) {
+          option = ['control'];
         }
+
+
+        if (data.topic == 'KeyMouseCtrl:KeyEvent') {
+          robot.keyToggle(
+              data.key, 
+              (data.down==1)?'down':'up',
+              option
+          );
+        }
+
+
+        if (data.topic == 'KeyMouseCtrl:MouseEvent') {
+          robot.moveMouse(data.x, data.y);
+
+          if (!mouseDown && data.buttonMask == 1) {
+            robot.mouseToggle("down");
+            mouseDown = true;
+          }
+
+          if (mouseDown) {
+            robot.dragMouse(data.x,data.y);
+          }
+
+          if (mouseDown && data.buttonMask == 0) {
+            mouseDown = false;
+          }
+
+          if (data.buttonMask == 0)  {
+            robot.mouseToggle("up");
+          }
+        }
+
       }
-    })
 
 
+
+    }
 
     function handleError (e) {
       console.log(e)

@@ -51,11 +51,12 @@
       <button type="button" id="screenshot">스크린샷</button>
 
     </div>
+
+    <!--<video id="screen" src="" autoplay></video>-->
     
     <div class="viewer-wrap" tabindex="0">
       <div class="viewer" >
         <div class="scale-wrap">
-          <video id="screen" src="" autoplay></video>
         </div>
       </div>
     </div>
@@ -66,19 +67,15 @@
     <script>
 
 
-    //var socketUrl = 'http://localhost:12341';
-    var socketUrl = 'https://superlucky.co.kr:12341';
+    var socketUrl = 'http://localhost:12341';
+    //var socketUrl = 'https://superlucky.co.kr:12341';
+    var receiver = {};
 
-    var receiver = new Jrtc(
-        'receiver',
-        'all',
-        io.connect(socketUrl),
-        document.querySelector('video')
-    );
+    receiver['screen-main'] = createReceiver(socketUrl, 'all');
 
     var sender = null;
 
-    receiver.connected = function() {
+    receiver['screen-main'].connected = function() {
       console.log("makeVIEWER");
 
       // 뷰어 테스트
@@ -88,13 +85,25 @@
       viewerApp.emitter.on('dataSend', function(buffer) {
         sender.sendChannel[Object.keys(sender.sendChannel)[0]].send(buffer);
       });
-      receiver.connected = function() {
+      receiver['screen-main'].connected = function() {
       }
 
     }
 
-    receiver.onReceiveMessageCallback = function(event) {
+    receiver['screen-main'].onReceiveMessageCallback = function(event) {
 
+
+      if (event.data.match(/^STREAM_IDS--/)) {
+        let subscreens = event.data.replace(/^STREAM_IDS--/,'').split("||||");
+
+        subscreens.forEach(function(id) {
+          receiver['screen-sub-'+id] = createReceiver(socketUrl, 'screen');
+
+          receiver['screen-sub-'+id].join('screen-sub-'+id);
+        });
+
+
+      }
 
       if (event.data == 'REQUEST_REVERSE_DATA_CHANNAL') {
 
@@ -110,13 +119,35 @@
         var rmid = new Date().getTime();
 
         sender.join(rmid, function(){
-          receiver.requestCreateRtc(rmid);
+          receiver['screen-main'].requestCreateRtc(rmid);
         });
       }
+
     }
-    receiver.join('mainroom');
+    receiver['screen-main'].join('screen-main');
 
 
+
+    function createReceiver(socketUrl, channleType) {
+
+
+      let $scaleWrap = document.querySelector(".scale-wrap");
+
+      let videoElement = document.createElement("video");
+      videoElement.id = "screen";
+      videoElement.setAttribute('autoplay',true);
+
+      $scaleWrap.appendChild(videoElement);
+
+      let receiver =  new Jrtc(
+          'receiver',
+          channleType,
+          io.connect(socketUrl),
+          videoElement
+      );
+      return receiver;
+
+    }
 
 
 
