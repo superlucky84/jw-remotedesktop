@@ -91,9 +91,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	//import Protocol from './lib/rc.protocol';
-	//import Parser from './lib/rc.parser.client'; 
-
 	module.exports = function () {
 	  function Viewer(option) {
 	    _classCallCheck(this, Viewer);
@@ -107,6 +104,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.scale = 1;
 	    this.fullscreen = false;
+
+	    this.mouse = new _mouse2.default({
+	      'emitter': this.emitter
+	    });
 	  }
 
 	  _createClass(Viewer, [{
@@ -116,20 +117,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var self = this;
 
-	      this.mouse = new _mouse2.default({
-	        'emitter': this.emitter
-	      });
-
 	      this.keyboard = new _keyboard2.default({
 	        'emitter': this.emitter
 	      });
 
 	      this.emitter.on('keyboardUpdate', function (data) {
-
-	        //var protocol =  Protocol['data'];
-	        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
-	        //var packet = new Parser.Encoder(schema, data||{}).pack();
-	        //self.emitter.emit('dataSend',packet.buffer);
 
 	        data.topic = 'KeyMouseCtrl:KeyEvent';
 	        console.log(data);
@@ -154,12 +146,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            y: mouse.y
 	          };
 
-	          //var protocol =  Protocol['data'];
-	          //var schema = protocol.get('KeyMouseCtrl:MouseEvent');
-	          //var packet = new Parser.Encoder(schema, data||{}).pack();
-	          //self.emitter.emit('dataSend',packet.buffer);
-
-
 	          data.topic = 'KeyMouseCtrl:MouseEvent';
 	          console.log(data);
 	          self.emitter.emit('dataSend', JSON.stringify(data));
@@ -172,11 +158,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          data = {};
 	        }
 
-	        //var protocol =  Protocol['data'];
-	        //var schema = protocol.get(topic);
-	        //var packet = new Parser.Encoder(schema, data||{}).pack();
-
-
 	        data.topic = topic;
 	        console.log(data);
 	        self.emitter.emit('dataSend', JSON.stringify(data));
@@ -187,10 +168,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!data) {
 	          data = {};
 	        }
-
-	        //var protocol =  Protocol['data'];
-	        //var schema = protocol.get(topic);
-	        //var packet = new Parser.Encoder(schema, data||{}).pack();
 
 	        data.topic = topic;
 	        console.log(data);
@@ -219,12 +196,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.scroller = new _scroller2.default({
 	          'bounding': { 'X': 0, 'Y': 100 }
 	        });
-	        _this.whiteboard = new _whiteboard2.default({
-	          'emitter': _this.emitter
+	        /*
+	        this.whiteboard = new Whiteboard({
+	          'emitter': this.emitter,
 	        });
-	        _this.laserpointer = new _laserpointer2.default({
-	          'emitter': _this.emitter
+	        this.laserpointer = new Laserpointer({
+	          'emitter': this.emitter
 	        });
+	        */
 	        self.setScale(1);
 	      }, 3000);
 
@@ -236,7 +215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      document.getElementById("screenshot").addEventListener('click', function () {
 
-	        var screen = self.viewer.querySelector("video");
+	        var screen = self.viewer.querySelector(".screen.show");
 	        var canvas = document.createElement('canvas');
 
 	        canvas.width = screen.offsetWidth;
@@ -332,7 +311,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var self = this;
 
-	      var screen = self.viewer.querySelector("video");
+	      var screen = self.viewer.querySelector(".screen.show");
 
 	      var marginHeight = (self.viewer.offsetHeight - Number(screen.offsetHeight * self.scale)) / 2;
 
@@ -348,18 +327,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var self = this;
 	      self.scale = scale;
 
-	      var screen = self.viewer.querySelector("video");
-	      var laserpointer = self.viewer.querySelector("#laserpointer");
-	      var whiteboard = self.viewer.querySelector("#whiteboard");
+	      var screen = self.viewer.querySelector(".screen.show");
+	      //let laserpointer = self.viewer.querySelector("#laserpointer");
+	      //let whiteboard = self.viewer.querySelector("#whiteboard");
 
 	      screen.style.transform = 'scale(' + scale + ')';
 	      screen.style.transformOrigin = 'left top';
 
-	      laserpointer.style.transform = 'scale(' + scale + ')';
-	      laserpointer.style.transformOrigin = 'left top';
+	      //laserpointer.style.transform = `scale(${scale})`;
+	      //laserpointer.style.transformOrigin = 'left top';
 
-	      whiteboard.style.transform = 'scale(' + scale + ')';
-	      whiteboard.style.transformOrigin = 'left top';
+	      //whiteboard.style.transform = `scale(${scale})`;
+	      //whiteboard.style.transformOrigin = 'left top';
 
 	      document.querySelector(".display-scale").innerHTML = parseInt(scale * 100);
 
@@ -367,6 +346,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      self.scaleArea.style.height = Number(screen.offsetHeight * scale) + "px";
 
 	      self.changeCenter();
+	    }
+	  }, {
+	    key: 'addMouseEvent',
+	    value: function addMouseEvent(videoElement) {
+	      this.mouse.addMouseListeners(videoElement);
 	    }
 	  }, {
 	    key: 'stop',
@@ -1345,13 +1329,112 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.emitter = option.emitter;
 	    this.active = true;
-	    this.mouse = {};
+	    this.mouse = {
+	      'buttons': {},
+	      'screenButtons': {},
+	      'x': -1,
+	      'y': -1
+	    };
+
 	    this.pressAutoEvent = null;
 
-	    addMouseListeners(this);
+	    window.addEventListener('focus', function () {
+	      self.active = true;
+	    });
+
+	    window.addEventListener('blur', function () {
+	      console.log('BLUR');
+	      self.active = false;
+	    });
 	  }
 
 	  _createClass(Mouse, [{
+	    key: 'addMouseListeners',
+	    value: function addMouseListeners($screen) {
+
+	      var self = this;
+
+	      console.log("J-SCREEN", $screen);
+
+	      var prevX = 0,
+	          prevY = 0;
+
+	      $screen.addEventListener('contextmenu', function (event) {
+	        event.preventDefault();
+	        return false;
+	      });
+
+	      $screen.addEventListener('mousedown', function (event) {
+
+	        if (self.active === false) return false;
+
+	        var button = event.which;
+
+	        if (self.mouse.buttons[button] === undefined) {
+	          self.mouse.buttons[button] = event.target;
+	        }
+
+	        getMousePointer(event, self);
+
+	        if (self.mouse.screenButtons[button] === undefined) {
+	          self.mouse.screenButtons[button] = true;
+	        }
+
+	        pressAutoEvent(event, self);
+
+	        event.preventDefault();
+	        return false;
+	      });
+
+	      $screen.addEventListener('mouseup', function (event) {
+
+	        cancelAnimationFrame(self.pressAutoEvent);
+
+	        if (self.active === false) return false;
+
+	        var button = event.which;
+
+	        if (self.mouse.buttons[button] !== undefined) {
+	          delete self.mouse.buttons[button];
+	        }
+
+	        getMousePointer(event, self);
+
+	        if (self.mouse.screenButtons[button] === true) {
+	          delete self.mouse.screenButtons[button];
+	        }
+
+	        event.preventDefault();
+	        return false;
+	      });
+
+	      $screen.addEventListener('wheel', function (event) {
+
+	        if (self.active === false) return false;
+
+	        var button = event.deltaY < 0 ? 4 : 5;
+
+	        getMousePointer(event, self);
+
+	        if (self.mouse.screenButtons[button] === undefined) {
+	          self.mouse.screenButtons[button] = true;
+	        }
+
+	        sendInput(self);
+
+	        event.preventDefault();
+	        return false;
+	      });
+
+	      $screen.addEventListener('mousemove', function (event) {
+
+	        if (self.active === false) return false;
+
+	        getMousePointer(event, self);
+	        sendInput(self);
+	      });
+	    }
+	  }, {
 	    key: 'update',
 	    value: function update() {
 	      this.state = {
@@ -1371,104 +1454,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  sendInput(self);
 	  self.pressAutoEvent = requestAnimationFrame(function () {
 	    pressAutoEvent(event, self);
-	  });
-	}
-
-	function addMouseListeners(self) {
-	  self.mouse = {
-	    'buttons': {},
-	    'screenButtons': {},
-	    'x': -1,
-	    'y': -1
-	  };
-
-	  var $screen = document.querySelector("video");
-
-	  var prevX = 0,
-	      prevY = 0;
-
-	  $screen.addEventListener('contextmenu', function (event) {
-	    event.preventDefault();
-	    return false;
-	  });
-
-	  $screen.addEventListener('mousedown', function (event) {
-
-	    if (self.active === false) return false;
-
-	    var button = event.which;
-
-	    if (self.mouse.buttons[button] === undefined) {
-	      self.mouse.buttons[button] = event.target;
-	    }
-
-	    getMousePointer(event, self);
-
-	    if (self.mouse.screenButtons[button] === undefined) {
-	      self.mouse.screenButtons[button] = true;
-	    }
-
-	    pressAutoEvent(event, self);
-
-	    event.preventDefault();
-	    return false;
-	  });
-
-	  $screen.addEventListener('mouseup', function (event) {
-
-	    cancelAnimationFrame(self.pressAutoEvent);
-
-	    if (self.active === false) return false;
-
-	    var button = event.which;
-
-	    if (self.mouse.buttons[button] !== undefined) {
-	      delete self.mouse.buttons[button];
-	    }
-
-	    getMousePointer(event, self);
-
-	    if (self.mouse.screenButtons[button] === true) {
-	      delete self.mouse.screenButtons[button];
-	    }
-
-	    event.preventDefault();
-	    return false;
-	  });
-
-	  $screen.addEventListener('wheel', function (event) {
-
-	    if (self.active === false) return false;
-
-	    var button = event.deltaY < 0 ? 4 : 5;
-
-	    getMousePointer(event, self);
-
-	    if (self.mouse.screenButtons[button] === undefined) {
-	      self.mouse.screenButtons[button] = true;
-	    }
-
-	    sendInput(self);
-
-	    event.preventDefault();
-	    return false;
-	  });
-
-	  $screen.addEventListener('mousemove', function (event) {
-
-	    if (self.active === false) return false;
-
-	    getMousePointer(event, self);
-	    sendInput(self);
-	  });
-
-	  window.addEventListener('focus', function () {
-	    self.active = true;
-	  });
-
-	  window.addEventListener('blur', function () {
-	    console.log('BLUR');
-	    self.active = false;
 	  });
 	}
 
@@ -2214,7 +2199,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      document.addEventListener('mousemove', function (evt) {
 
-	        if (evt.target.id == 'screen' || evt.target.id == 'whiteboard') {
+	        if (evt.target.id.match(/^screen-/) || evt.target.id == 'whiteboard') {
 	          self.scrollAutoMoveAction('X', evt);
 	          self.scrollAutoMoveAction('Y', evt);
 	        }

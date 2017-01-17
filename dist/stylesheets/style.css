@@ -17,8 +17,12 @@ body {
   user-select: none;
 }
 
-#screen {
+.screen {
   transition: all .7s ease-in-out;
+  display: none;
+}
+.screen.show {
+  display: block;
 }
 
 .scale-wrap {

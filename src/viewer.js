@@ -8,8 +8,6 @@ import Keyboard from './lib/viewer/keyboard';
 import Scroller from './lib/viewer/scroller';
 import Whiteboard from './lib/viewer/whiteboard';
 import Laserpointer from './lib/viewer/laserpointer';
-//import Protocol from './lib/rc.protocol';
-//import Parser from './lib/rc.parser.client'; 
 
 module.exports = class Viewer {
 
@@ -25,16 +23,16 @@ module.exports = class Viewer {
 
     this.scale = 1;
     this.fullscreen = false;
-  }
-
-  init(screenApp) {
-
-
-    var self = this;
 
     this.mouse = new Mouse({
       'emitter': this.emitter
     });
+
+  }
+
+  init(screenApp) {
+
+    var self = this;
 
     this.keyboard = new Keyboard({
       'emitter': this.emitter
@@ -42,14 +40,10 @@ module.exports = class Viewer {
 
     this.emitter.on('keyboardUpdate', function(data) {
 
-        //var protocol =  Protocol['data'];
-        //var schema = protocol.get('KeyMouseCtrl:KeyEvent');
-        //var packet = new Parser.Encoder(schema, data||{}).pack();
-        //self.emitter.emit('dataSend',packet.buffer);
 
-        data.topic = 'KeyMouseCtrl:KeyEvent';
-        console.log(data);
-        self.emitter.emit('dataSend', JSON.stringify(data));
+      data.topic = 'KeyMouseCtrl:KeyEvent';
+      console.log(data);
+      self.emitter.emit('dataSend', JSON.stringify(data));
 
     });
 
@@ -72,10 +66,6 @@ module.exports = class Viewer {
           y: mouse.y
         };
 
-        //var protocol =  Protocol['data'];
-        //var schema = protocol.get('KeyMouseCtrl:MouseEvent');
-        //var packet = new Parser.Encoder(schema, data||{}).pack();
-        //self.emitter.emit('dataSend',packet.buffer);
 
 
         data.topic = 'KeyMouseCtrl:MouseEvent';
@@ -91,12 +81,6 @@ module.exports = class Viewer {
         data = {};
       }
 
-      //var protocol =  Protocol['data'];
-      //var schema = protocol.get(topic);
-      //var packet = new Parser.Encoder(schema, data||{}).pack();
-
-
-
       data.topic = topic;
       console.log(data);
       self.emitter.emit('dataSend', JSON.stringify(data));
@@ -109,10 +93,6 @@ module.exports = class Viewer {
       if (!data) {
         data = {};
       }
-
-      //var protocol =  Protocol['data'];
-      //var schema = protocol.get(topic);
-      //var packet = new Parser.Encoder(schema, data||{}).pack();
 
       data.topic = topic;
       console.log(data);
@@ -145,12 +125,14 @@ module.exports = class Viewer {
       this.scroller = new Scroller({
         'bounding': { 'X': 0, 'Y': 100 }
       });
+      /*
       this.whiteboard = new Whiteboard({
-        'emitter': this.emitter
+        'emitter': this.emitter,
       });
       this.laserpointer = new Laserpointer({
         'emitter': this.emitter
       });
+      */
       self.setScale(1);
     },3000);
 
@@ -164,7 +146,7 @@ module.exports = class Viewer {
 
     document.getElementById("screenshot").addEventListener('click', function() {
 
-      let screen = self.viewer.querySelector("video");
+      let screen = self.viewer.querySelector(".screen.show");
       let canvas = document.createElement('canvas');
 
       canvas.width = screen.offsetWidth;
@@ -273,7 +255,7 @@ module.exports = class Viewer {
 
     let self = this;
 
-    let screen = self.viewer.querySelector("video");
+    let screen = self.viewer.querySelector(".screen.show");
 
     let marginHeight = (self.viewer.offsetHeight - Number(screen.offsetHeight * self.scale)) / 2;
 
@@ -290,21 +272,20 @@ module.exports = class Viewer {
     let self = this;
     self.scale = scale;
 
-    let screen = self.viewer.querySelector("video");
-    let laserpointer = self.viewer.querySelector("#laserpointer");
-    let whiteboard = self.viewer.querySelector("#whiteboard");
+    let screen = self.viewer.querySelector(".screen.show");
+    //let laserpointer = self.viewer.querySelector("#laserpointer");
+    //let whiteboard = self.viewer.querySelector("#whiteboard");
 
     screen.style.transform = `scale(${scale})`;
     screen.style.transformOrigin = 'left top';
 
-    laserpointer.style.transform = `scale(${scale})`;
-    laserpointer.style.transformOrigin = 'left top';
+    //laserpointer.style.transform = `scale(${scale})`;
+    //laserpointer.style.transformOrigin = 'left top';
 
-    whiteboard.style.transform = `scale(${scale})`;
-    whiteboard.style.transformOrigin = 'left top';
+    //whiteboard.style.transform = `scale(${scale})`;
+    //whiteboard.style.transformOrigin = 'left top';
 
     document.querySelector(".display-scale").innerHTML = parseInt(scale*100);
-
 
 
     self.scaleArea.style.width = Number(screen.offsetWidth * scale)+"px";
@@ -314,7 +295,10 @@ module.exports = class Viewer {
     self.changeCenter();
 
 
+  }
 
+  addMouseEvent(videoElement) {
+    this.mouse.addMouseListeners(videoElement);
   }
 
 

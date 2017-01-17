@@ -15,7 +15,6 @@ export default class Scroller extends Emitter {
     this.scrollWrap = document.querySelector(".viewer-wrap");
     this.scrollInner = this.scrollWrap.querySelector('.viewer');
 
-
     this.psX = null;
     this.psY = null;
 
@@ -174,7 +173,7 @@ export default class Scroller extends Emitter {
 
     document.addEventListener('mousemove', function(evt) {
 
-      if (evt.target.id == 'screen' || evt.target.id == 'whiteboard') {
+      if (evt.target.id.match(/^screen-/) || evt.target.id == 'whiteboard') {
         self.scrollAutoMoveAction('X',evt);
         self.scrollAutoMoveAction('Y',evt);
       }

@@ -50,6 +50,9 @@
 
       <button type="button" id="screenshot">스크린샷</button>
 
+      <div id="moniter">
+      </div>
+
     </div>
 
     <!--<video id="screen" src="" autoplay></video>-->
@@ -71,15 +74,16 @@
     //var socketUrl = 'https://superlucky.co.kr:12341';
     var receiver = {};
 
-    receiver['screen-main'] = createReceiver(socketUrl, 'all');
+    // 뷰어 테스트
+    var viewerApp = new Viewer();
+
+    receiver['screen-main'] = createReceiver(socketUrl, 'all', 'screen-main');
 
     var sender = null;
 
     receiver['screen-main'].connected = function() {
       console.log("makeVIEWER");
 
-      // 뷰어 테스트
-      var viewerApp = new Viewer();
       viewerApp.init();
 
       viewerApp.emitter.on('dataSend', function(buffer) {
@@ -97,7 +101,7 @@
         let subscreens = event.data.replace(/^STREAM_IDS--/,'').split("||||");
 
         subscreens.forEach(function(id) {
-          receiver['screen-sub-'+id] = createReceiver(socketUrl, 'screen');
+          receiver['screen-sub-'+id] = createReceiver(socketUrl, 'screen', 'screen-sub-'+id);
 
           receiver['screen-sub-'+id].join('screen-sub-'+id);
         });
@@ -128,22 +132,50 @@
 
 
 
-    function createReceiver(socketUrl, channleType) {
-
+    function createReceiver(socketUrl, channleType, videoId) {
 
       let $scaleWrap = document.querySelector(".scale-wrap");
+      let $moniter = document.getElementById('moniter');
+
+
 
       let videoElement = document.createElement("video");
-      videoElement.id = "screen";
-      videoElement.setAttribute('autoplay',true);
+      videoElement.id = videoId;
+      videoElement.setAttribute("autoplay",true);
+
+      let className = "screen";
+      if (videoId == "screen-main") {
+        className += " show";
+      }
+
+      videoElement.className= className;
+
+      // ADD VIDEO EVENT
+      viewerApp.addMouseEvent(videoElement);
 
       $scaleWrap.appendChild(videoElement);
 
+      let buttonElement = document.createElement("button")
+      buttonElement.id = "button-"+videoId;
+      buttonElement.innerHTML = videoId;
+      buttonElement.addEventListener('click', function() {
+
+        let videoId = this.id.replace(/^button-/,"");
+        let $video = document.getElementById(videoId);
+
+        document.querySelector('.screen.show').classList.remove("show");
+        $video.classList.add("show");
+        viewerApp.setScale(viewerApp.scale);
+
+      });
+
+      $moniter.appendChild(buttonElement);
+
       let receiver =  new Jrtc(
-          'receiver',
-          channleType,
-          io.connect(socketUrl),
-          videoElement
+        'receiver',
+        channleType,
+        io.connect(socketUrl),
+        videoElement
       );
       return receiver;
 
@@ -152,7 +184,5 @@
 
 
     </script>
-    <!--div id="jwviewer"></div-->
-    <!--script src="javascripts/bundle.js"></script-->
   </body>
 </html>
