@@ -7,17 +7,17 @@ var server_handler = function (req, res) {
   res.end();
 };
 
+/*
 var server = http.createServer().listen(12341,function(){
     console.log('Server Running at screenshare singnaling');
 });
+*/
 
-/*
 var server = require('https').Server({
   key: fs.readFileSync(__dirname+'/jssl.key'),
   cert: fs.readFileSync(__dirname+'/1_superlucky.co.kr_bundle.crt')
 }, server_handler);
 server.listen(12341);
-*/
 
 
 
