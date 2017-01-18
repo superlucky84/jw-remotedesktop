@@ -108,6 +108,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.mouse = new _mouse2.default({
 	      'emitter': this.emitter
 	    });
+
+	    this.screenOption = {};
 	  }
 
 	  _createClass(Viewer, [{
@@ -140,10 +142,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	          }
 
+	          var screenId = self.viewer.querySelector(".screen.show").id;
+
 	          var data = {
 	            buttonMask: mask,
-	            x: mouse.x,
-	            y: mouse.y
+	            x: mouse.x + self.screenOption[screenId].x,
+	            y: mouse.y + self.screenOption[screenId].y
 	          };
 
 	          data.topic = 'KeyMouseCtrl:MouseEvent';
@@ -351,6 +355,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'addMouseEvent',
 	    value: function addMouseEvent(videoElement) {
 	      this.mouse.addMouseListeners(videoElement);
+	    }
+	  }, {
+	    key: 'addScreenOption',
+	    value: function addScreenOption(screenId, screenOption) {
+	      this.screenOption[screenId] = screenOption;
 	    }
 	  }, {
 	    key: 'stop',

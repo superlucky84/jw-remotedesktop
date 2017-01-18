@@ -22,6 +22,8 @@ module.exports = class Jrtc {
 
     this.streamIds = [];
 
+    this.screenOption = null;
+
 
 
     //uperlucky:d942f75fd1572da3bb2e3bd3fe1426bd
@@ -83,10 +85,12 @@ module.exports = class Jrtc {
   }
 
 
-  setEvent(stream) {
+
+  setEvent(stream, option) {
 
     let that = this;
     that.stream = stream;
+    that.screenOption = option;
 
     if (that.channel == 'screen' || that.channel == 'all') {
 
@@ -98,7 +102,6 @@ module.exports = class Jrtc {
 
       that.$video.srcObject = stream;
     }
-
 
 
     that.ws.on('receiveCreateRtc', function(id, roomname) {
@@ -265,7 +268,7 @@ module.exports = class Jrtc {
 
 
 
-    that.ws.on('receiveOffer', function(desc, id) {
+    that.ws.on('receiveOffer', function(desc, id, screenOption) {
 
       console.log('RECEIVEOFFER----',(new Date).getTime());
 
@@ -287,6 +290,7 @@ module.exports = class Jrtc {
 
       if (that.channel == 'screen' || that.channel == 'all') {
         that.peer[id].onaddstream = that.gotRemoteStream.bind(that);
+        that.screenOption = screenOption;
       }
       if (that.channel == 'data'|| that.channel == 'all'){
         that.peer[id].ondatachannel = that.receiveChannelCallback.bind(that, id);
@@ -328,12 +332,13 @@ module.exports = class Jrtc {
 
   onSetLocalSuccess(desc, id) {
     console.log('setLocalDescription complete');
-    // 성공 후 웹소켓으로 parter에게 sdp 전달
-    let sendType = "sendOffer";
+
     if (this.type == 'receiver') {
-      sendType = "sendAnswer";
+      this.ws.emit("sendAnswer", id, desc);
     }
-    this.ws.emit(sendType, id, desc);
+    else {
+      this.ws.emit("sendOffer", id, desc, this.screenOption);
+    }
   }
 
 

@@ -28,6 +28,8 @@ module.exports = class Viewer {
       'emitter': this.emitter
     });
 
+    this.screenOption = {};
+
   }
 
   init(screenApp) {
@@ -60,10 +62,14 @@ module.exports = class Viewer {
           }
         }
 
+
+        let screenId = self.viewer.querySelector(".screen.show").id;
+
+
         var data = {
           buttonMask: mask,
-          x: mouse.x,
-          y: mouse.y
+          x: mouse.x + self.screenOption[screenId].x,
+          y: mouse.y + self.screenOption[screenId].y
         };
 
 
@@ -299,6 +305,10 @@ module.exports = class Viewer {
 
   addMouseEvent(videoElement) {
     this.mouse.addMouseListeners(videoElement);
+  }
+
+  addScreenOption(screenId, screenOption) {
+    this.screenOption[screenId] = screenOption;
   }
 
 

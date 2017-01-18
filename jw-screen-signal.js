@@ -80,10 +80,10 @@ io.sockets.on('connection', function (socket) {
     }
   });
 
-  socket.on('sendOffer', function(wsid, desc) {
+  socket.on('sendOffer', function(wsid, desc, screenOption) {
     console.log('sendOFFERRRR');
     if (io.sockets.connected[wsid]) {
-      io.sockets.connected[wsid].emit('receiveOffer', desc, socket.id);
+      io.sockets.connected[wsid].emit('receiveOffer', desc, socket.id, screenOption);
     }
   });
 

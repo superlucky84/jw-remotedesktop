@@ -70,8 +70,8 @@
     <script>
 
 
-    var socketUrl = 'http://localhost:12341';
-    //var socketUrl = 'https://superlucky.co.kr:12341';
+    //var socketUrl = 'http://localhost:12341';
+    var socketUrl = 'https://superlucky.co.kr:12341';
     var receiver = {};
 
     // 뷰어 테스트
@@ -86,9 +86,12 @@
 
       viewerApp.init();
 
+      viewerApp.addScreenOption('screen-main', receiver['screen-main'].screenOption);
+
       viewerApp.emitter.on('dataSend', function(buffer) {
         sender.sendChannel[Object.keys(sender.sendChannel)[0]].send(buffer);
       });
+
       receiver['screen-main'].connected = function() {
       }
 
@@ -102,6 +105,15 @@
 
         subscreens.forEach(function(id) {
           receiver['screen-sub-'+id] = createReceiver(socketUrl, 'screen', 'screen-sub-'+id);
+
+          receiver['screen-sub-'+id].connected = function() {
+
+            viewerApp.addScreenOption('screen-sub-'+id, receiver['screen-sub-'+id].screenOption);
+
+            receiver['screen-sub-'+id].connected = function() {
+            }
+
+          }
 
           receiver['screen-sub-'+id].join('screen-sub-'+id);
         });

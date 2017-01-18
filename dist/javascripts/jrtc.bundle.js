@@ -92,6 +92,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.streamIds = [];
 
+	    this.screenOption = null;
+
 	    //uperlucky:d942f75fd1572da3bb2e3bd3fe1426bd
 	    this.iceConfig = {
 	      iceServers: [{
@@ -152,10 +154,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'setEvent',
-	    value: function setEvent(stream) {
+	    value: function setEvent(stream, option) {
 
 	      var that = this;
 	      that.stream = stream;
+	      that.screenOption = option;
 
 	      if (that.channel == 'screen' || that.channel == 'all') {
 
@@ -316,7 +319,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var that = this;
 
-	      that.ws.on('receiveOffer', function (desc, id) {
+	      that.ws.on('receiveOffer', function (desc, id, screenOption) {
 
 	        console.log('RECEIVEOFFER----', new Date().getTime());
 
@@ -338,6 +341,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        if (that.channel == 'screen' || that.channel == 'all') {
 	          that.peer[id].onaddstream = that.gotRemoteStream.bind(that);
+	          that.screenOption = screenOption;
 	        }
 	        if (that.channel == 'data' || that.channel == 'all') {
 	          that.peer[id].ondatachannel = that.receiveChannelCallback.bind(that, id);
@@ -370,12 +374,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'onSetLocalSuccess',
 	    value: function onSetLocalSuccess(desc, id) {
 	      console.log('setLocalDescription complete');
-	      // 성공 후 웹소켓으로 parter에게 sdp 전달
-	      var sendType = "sendOffer";
+
 	      if (this.type == 'receiver') {
-	        sendType = "sendAnswer";
+	        this.ws.emit("sendAnswer", id, desc);
+	      } else {
+	        this.ws.emit("sendOffer", id, desc, this.screenOption);
 	      }
-	      this.ws.emit(sendType, id, desc);
 	    }
 	  }, {
 	    key: 'onSetRemoteSuccess',
