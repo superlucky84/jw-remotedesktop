@@ -116,6 +116,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /* datachannel sample */
 	    this.sendChannel = {};
 
+	    this.ws.on('message', function (message) {
+	      alert(message);
+	    });
+
 	    this.ws.on('destroy', function (id) {
 	      if (_this.sendChannel[id]) {
 	        _this.sendChannel[id] = null;

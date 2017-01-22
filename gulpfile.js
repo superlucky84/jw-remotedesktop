@@ -3,6 +3,7 @@ var path = require('path'),
  
     gulp = require('gulp'),
     util = require('gulp-util'),
+    babel = require('gulp-babel'),
  
     broSync = require('browser-sync').create(),
     webpack = require('gulp-webpack'),
@@ -22,7 +23,21 @@ gulp.task('js', function() {
         .pipe(gulp.dest(paths.dest));
 });
 
+gulp.task('hostjs', function() {
+  return gulp.src('src/lib/host/**/*.js')
+      .pipe(babel({
+        presets: ['es2015']
+      }))
+      .pipe(gulp.dest('dist'));
+});
+
 /* gulp.task('watch', ['js', 'css', 'icons'], function() { */
+
+gulp.task('hostwatch', ['hostjs'], function() {
+
+  gulp.watch('src/lib/host/**/*.js', ['hostjs']);
+
+});
 
 gulp.task('watch', ['js'], function() {
  

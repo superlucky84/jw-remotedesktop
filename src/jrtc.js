@@ -52,6 +52,10 @@ module.exports = class Jrtc {
     /* datachannel sample */
     this.sendChannel = {};
 
+    this.ws.on('message', (message) => {
+      alert(message);
+    });
+
     this.ws.on('destroy', (id) => {
       if (this.sendChannel[id]) {
         this.sendChannel[id] = null;
