@@ -3,19 +3,65 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
+    <link rel='stylesheet' href='dist/stylesheets/host.css' />
   </head>
   <body>
-		<progress id="sendProgress" max="0" value="0"></progress>
-    <div id="MONITER" style="position: relative; width: 700px; height: 350px; overflow: scroll; border: 1px solid green;">
-    </div>
 
-    <div id="IMGS" style="border: 2px solid red">
-    </div>
 
-    <button id="ready">READY</button>
+    <section id="logout">
 
-    <div id="VIDEOS" style="border: 2px solid red">
-    </div>
+      <h1>
+        HOST LOGIN
+      </h1>
+      <div class="login-box">
+        <div>
+          <div>
+            <label for="userid">userid</label>
+            <input type="text" id="userid" name="userid" value="" />
+          </div>
+          <div>
+            <label for="password">password</label>
+            <input type="password" id="password" name="passwordserid" value="" />
+          </div>
+        </div>
+        <div class="login-buttons">
+          <button type="button" id="btn-login" class="btn2 btn2-primary">LOGIN</button>
+          <button type="button" id="btn-join" class="btn2 btn2-secondary">JOIN</button>
+        </div>
+      <div>
+
+
+    </section>
+
+    <section id="login">
+      <h1>
+        DISPLAY SHAPE
+      </h1>
+
+      <div id="moniter">
+        <div id="moniter-inner">
+        </div>
+      </div>
+
+      <div id="screen-list">
+        <h4>SCREEN LIST (drag shape area)</h4>
+        <div id="IMGS">
+        </div>
+      </div>
+
+
+      <div id="VIDEOS">
+        <h4>CONNECTED LIST</h4>
+      </div>
+
+      <div id="buttons">
+        <button id="ready" type="button" class="btn2 btn2-lg btn2-primary">READY</button>
+        <button id="reset" type="button" class="btn2 btn2-lg btn2-secondary">RESET</button>
+        <button id="btn-logout" type="button" class="btn2 btn2-lg">LOGOUT</button>
+      </div>
+    </section>
+
+
     <script src="dist/javascripts/socket.io.js"></script>
     <script src="dist/javascripts/jrtc.bundle.js"></script>
     <script>

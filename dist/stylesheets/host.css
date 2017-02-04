@@ -1,0 +1,175 @@
+
+html {
+  height: 100%;
+}
+
+body {
+  padding: 10px;
+  margin: 0;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+button.btn2 {
+	display: inline-block;
+					padding: 7px 12px;
+					font-size: 14px;
+	border: 0;
+	background-color: #fff;
+					outline: none;
+					color: #000;
+	box-shadow: rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px;
+	border-radius: 2px;
+}
+
+button.btn2:hover {
+	border-radius: 2px;
+	background-color: rgba(0,0,0,0.07);
+	transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+button.btn2:active {
+	box-shadow: rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px;
+}
+
+
+/**
+ * TYPE2 - RESIZEABLE
+ */
+button.btn2.btn2-sm {
+	font-size: 11px;
+	padding: 5px 10px;
+}
+
+button.btn2.btn2-lg {
+	font-size: 16px;
+	padding: 13px 25px;
+	font-weight: bold;
+}
+
+
+/**
+ * TYPE2 - PRIMARY
+ */
+button.btn2.btn2-primary {
+	color: #fff;
+	background-color: rgb(0, 188, 212);
+}
+button.btn2.btn2-primary:hover {
+	background-color: rgba(0, 188, 212, 0.4);
+}
+
+/**
+ * TYPE2 - SECONDARY
+ */
+button.btn2.btn2-secondary {
+	color: #fff;
+	background-color: rgb(255, 64, 129);
+}
+button.btn2.btn2-secondary:hover {
+	background-color: rgba(255, 64, 129, 0.4);
+}
+
+#moniter {
+  display: flex;
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+  align-items: center;
+  justify-content: center;
+}
+
+#moniter-inner {
+  margin: auto;
+  position: relative;
+  overflow: scroll;
+  border: 1px solid green;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+#moniter-inner div {
+  background-color: #000;
+}
+h1 {
+  text-align: center;
+}
+
+#IMGS {
+  padding: 10px 0;
+}
+
+#buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+}
+
+#buttons button {
+  margin-left: 10px;
+}
+
+#VIDEOS {
+  display: none;
+  padding: 10px;
+}
+
+#VIDEOS video {
+  width: 23%;
+  margin-right: 10px;
+}
+
+#login {
+  display: none;
+}
+
+#logout {
+  display: none;
+}
+
+#logout .login-box {
+  display: flex;
+  justify-content: flex-start;
+  width: 200px;
+  margin: auto;
+}
+
+#logout .login-box label {
+  display: inline-block;
+  width: 75px;
+
+}
+
+#logout .login-box .login-buttons {
+  display: flex;
+  flex-direction: column;
+  height: 84px;
+  padding-left: 10px;
+}
+
+#logout .login-box button {
+  width: 87px;
+  height: 97%;
+  display: block;
+  margin-top: 4px;
+}
+
+#logout .login-box input {
+  border-radius: 3px;
+  border: 1px solid#cdcdcd;
+  height: 20px;
+  outline: none;
+}
+
+
+
+
+

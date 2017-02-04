@@ -1,8 +1,12 @@
 
 'use strict';
 
+
+import firebase from 'firebase';
 import robot from 'robotjs';
 import {desktopCapturer, screen} from 'electron';
+
+console.log(firebase);
 
 
 export class Host {
@@ -12,9 +16,11 @@ export class Host {
     robot.setMouseDelay(1);
     robot.setKeyboardDelay(1);
 
+
     this.socketUrl = option.socketUrl;
     this.Jrtc = option.Jrtc;
     this.io = option.io;
+
 
     this.receiver = {};
     this.sourcesInfo = null;
@@ -22,21 +28,107 @@ export class Host {
       'screen-main': null
     };
 
+
     this.screens = screen.getAllDisplays();
     this.screenOption = {};
+
+
+    firebase.initializeApp({
+      apiKey: "AIzaSyC8v00g3lGl_0-bIkIK9qwg-ZPiHzmLgSE",
+      authDomain: "remotedesktop-b5c6a.firebaseapp.com",
+      databaseURL: "https://remotedesktop-b5c6a.firebaseio.com",
+      storageBucket: "remotedesktop-b5c6a.appspot.com",
+      messagingSenderId: "826803293829"
+    });
 
 
   }
 
   init() {
 
+		this.loginChk();
+
     this.displayScreenBox();
     this.displayScreenImg();
 
+
     document.getElementById("ready").addEventListener('click', () => {
-      this.getStreamReady();
+
+      let IMGS = document.querySelectorAll("#IMGS img");
+      if (IMGS.length == 0) {
+        this.getStreamReady();
+        document.getElementById("VIDEOS").style.display = "block";
+        document.getElementById("ready").style.display = "none";
+      }
+      else {
+        alert('drop all screens');
+      }
+
+    });
+
+    document.getElementById("reset").addEventListener('click', () => {
+      location.reload();
+    });
+
+    // login
+    document.getElementById("btn-logout").addEventListener('click', () => {
+      firebase.auth().signOut();
+    });
+
+
+    // login
+    document.getElementById("btn-login").addEventListener('click', () => {
+
+      let userid = document.getElementById("userid").value;
+      let password = document.getElementById("password").value;
+
+			firebase.auth().signInWithEmailAndPassword(userid, password).
+				catch((error) => {
+          alert(error.message);
+			});
+
+    });
+
+    // join
+    document.getElementById("btn-join").addEventListener('click', () => {
+
+      let userid = document.getElementById("userid").value;
+      let password = document.getElementById("password").value;
+
+			firebase.auth().createUserWithEmailAndPassword(userid, password)
+				.catch((error) => {
+          alert(error.message);
+      });
     });
   }
+
+ loginChk() {
+    firebase.auth().onAuthStateChanged((user) => {
+
+      if (user == null) {
+				document.getElementById("logout").style.display = "block";
+				document.getElementById("login").style.display = "none";
+      }
+
+      else if (user.emailVerified == false) {
+
+				document.getElementById("logout").style.display = "block";
+				document.getElementById("login").style.display = "none";
+
+        firebase.auth().currentUser.sendEmailVerification().then(() => {
+					alert('가입 확인메일을 보냈습니다.');
+          firebase.auth().signOut();
+        });
+      }
+      else {
+				document.getElementById("logout").style.display = "none";
+				document.getElementById("login").style.display = "block";
+      }
+    })
+  }
+
+
+
 
   getStreamReady() {
       let self = this;
@@ -164,8 +256,6 @@ export class Host {
 
     let videoElement = document.createElement("video");
 
-    videoElement.style.width = parseInt(100/length)+"%";
-
     let $VIDEOS = document.getElementById('VIDEOS');
     $VIDEOS.appendChild(videoElement);
 
@@ -195,7 +285,7 @@ export class Host {
         let img = document.createElement("img");
 
         img.src = imgUrl;
-        img.style.width = "100px";
+        img.style.width = "23%";
         img.style.marginRight = "10px";
         img.setAttribute("dragable","true");
 
@@ -220,15 +310,29 @@ export class Host {
 
     this.screens.forEach(function(info) {
 
-      let moniter = document.getElementById("MONITER");
+      let moniter = document.getElementById("moniter-inner");
       let div = document.createElement("div");
 
       div.style.position = "absolute";
-      div.style.width  =  parseInt(info.bounds.width / 8)+"px";
-      div.style.height =  parseInt(info.bounds.height / 8)+"px";
 
-      div.style.left =  parseInt(info.bounds.x / 8)+"px";
-      div.style.top  =  parseInt(info.bounds.y / 8)+"px";
+      let width = parseInt(info.bounds.width / 8);
+      let height = parseInt(info.bounds.height / 8);
+
+      let left = parseInt(info.bounds.x / 8);
+      let top  = parseInt(info.bounds.y / 8);
+
+      div.style.width  =  width+"px";
+      div.style.height =  height+"px";
+
+      div.style.left =  left+"px";
+      div.style.top  =  top+"px";
+
+      console.log(left,width);
+      console.log(top,height);
+
+      // 모니터 영역 width, height 세팅
+      moniter.style.width  = parseInt(left + width)+"px";
+      moniter.style.height = parseInt(top + height)+"px";
 
       div.style.border = "1px solid #000";
 
@@ -252,8 +356,15 @@ export class Host {
           "y": info.bounds.y
         }
 
-
         event.currentTarget.appendChild(optionElement);
+
+
+        let IMGS = document.querySelectorAll("#IMGS img");
+        if (IMGS.length == 0) {
+          var elem = document.getElementById("screen-list");
+          elem.parentElement.removeChild(elem);
+        }
+
         event.preventDefault();
       });
 
@@ -263,9 +374,6 @@ export class Host {
     });
 
   }
-
 }
-
-
 
 
