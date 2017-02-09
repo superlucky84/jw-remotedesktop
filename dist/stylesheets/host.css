@@ -89,14 +89,16 @@ button.btn2.btn2-secondary:hover {
 #moniter-inner {
   margin: auto;
   position: relative;
-  overflow: scroll;
-  border: 1px solid green;
+  overflow: visible;
+  /*border: 1px solid green;*/
   display: inline-block;
   box-sizing: border-box;
+
 }
 
 #moniter-inner div {
   background-color: #000;
+  border: 2px solid rgb(0, 255, 220);
 }
 h1 {
   text-align: center;

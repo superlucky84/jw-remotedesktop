@@ -293,6 +293,7 @@ var Host = exports.Host = function () {
       this.screens.forEach(function (info) {
 
         var moniter = document.getElementById("moniter-inner");
+
         var div = document.createElement("div");
 
         div.style.position = "absolute";
@@ -302,6 +303,8 @@ var Host = exports.Host = function () {
 
         var left = parseInt(info.bounds.x / 8);
         var top = parseInt(info.bounds.y / 8);
+        if (left < 0) left = left * -1;
+        if (top < 0) top = top * -1;
 
         div.style.width = width + "px";
         div.style.height = height + "px";
@@ -309,14 +312,25 @@ var Host = exports.Host = function () {
         div.style.left = left + "px";
         div.style.top = top + "px";
 
-        console.log(left, width);
-        console.log(top, height);
+        console.log(moniter.style.width);
+        console.log(parseInt(left + width));
+        console.log('');
+
+        if (!moniter.style.width) {
+          moniter.style.width = "0";
+        }
+
+        if (!moniter.style.height) {
+          moniter.style.height = "0";
+        }
 
         // 모니터 영역 width, height 세팅
-        moniter.style.width = parseInt(left + width) + "px";
-        moniter.style.height = parseInt(top + height) + "px";
-
-        div.style.border = "1px solid #000";
+        if (parseInt(moniter.style.width) < parseInt(left + width)) {
+          moniter.style.width = parseInt(left + width) + "px";
+        }
+        if (parseInt(moniter.style.height) < parseInt(top + height)) {
+          moniter.style.height = parseInt(top + height) + "px";
+        }
 
         div.addEventListener('dragover', function (event) {
           event.preventDefault();
